@@ -9,6 +9,24 @@
   <meta content="#ffffff" name="theme-color" />
   <meta content="#da532c" name="msapplication-TileColor" />
 
+
+{% block meta_content %}
+    {% if page.title %}
+    <title>{{page.title}} —&nbsp;Manank</title>
+    <meta name="twitter:title" content="{{page.title}} —&nbsp;Manank">
+    <meta property="og:title" content="{{page.title}} —&nbsp;Manank" />
+    {% else %}
+    <title>Manank –&nbsp;Blog</title>
+    <meta name="twitter:title" content="Manank —&nbsp;Blog">
+    <meta property="og:title" content="Manank —&nbsp;Blog" />
+    {% endif %}
+    {% if page.description %}
+    <meta name="description" content="{{ page.description | safe }}" />
+    <meta name="twitter:description" content="{{ page.description | safe }}">
+    <meta property="og:description" content="{{ page.description | safe }}" />
+    {% endif %}
+{% endblock meta_content %}
+
   {% if config.extra.favicon.webmanifest %}
   <link href='{{ config.extra.favicon.webmanifest }}' rel="manifest" />
   {% endif %}
@@ -233,3 +251,4 @@
 </body>
 
 </html>
+

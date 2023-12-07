@@ -1,6 +1,18 @@
 {% extends "base.html" %}
 
+{% block meta_content %}
+<title>Manank –&nbsp;Blog</title>
+<meta name="twitter:title" content="Manank's —&nbsp;Blog">
+<meta property="og:title" content="Manank's —&nbsp;Blog" />
+{% endblock meta_content %}
+
 {% block content %}
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@manank_p">
+<meta name="twitter:creator" content="@manank_p">
+<meta property="og:type" content="article" />
+<meta property="og:url" content="{{config.base_url | safe}}/{{current_path | safe}}" />
+<meta property="og:site_name" content="Manank's —&nbsp;Blog" />
 <section class="section">
   <div class="container">
     <div class="has-text-centered">
