@@ -11,6 +11,13 @@
 
 
 {% block meta_content %}
+  
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@manank_p">
+    <meta name="twitter:creator" content="@manank_p">
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="{{config.base_url | safe}}/{{current_path | safe}}" />
+    <meta property="og:site_name" content="Manank's —&nbsp;Blog" />
     {% if page.title %}
     <title>{{page.title}} —&nbsp;Manank</title>
     <meta name="twitter:title" content="{{page.title}} —&nbsp;Manank">
