@@ -8,31 +8,18 @@
   <meta content="width=device-width, initial-scale=1" name="viewport" />
   <meta content="#ffffff" name="theme-color" />
   <meta content="#da532c" name="msapplication-TileColor" />
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@manank_p">
+  <meta name="twitter:creator" content="@manank_p">
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Manank's —&nbsp;Blog" />
 
-
-{% block meta_content %}
-  
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:site" content="@manank_p">
-    <meta name="twitter:creator" content="@manank_p">
-    <meta property="og:type" content="article" />
-    <meta property="og:url" content="{{config.base_url | safe}}" />
-    <meta property="og:site_name" content="Manank's —&nbsp;Blog" />
-    {% if page.title %}
-    <title>{{page.title}} —&nbsp;Manank</title>
-    <meta name="twitter:title" content="{{page.title}} —&nbsp;Manank">
-    <meta property="og:title" content="{{page.title}} —&nbsp;Manank" />
-    {% else %}
-    <title>Manank –&nbsp;Blog</title>
-    <meta name="twitter:title" content="Manank —&nbsp;Blog">
-    <meta property="og:title" content="Manank —&nbsp;Blog" />
-    {% endif %}
-    {% if page.description %}
-    <meta name="description" content="{{ page.description | safe }}" />
-    <meta name="twitter:description" content="{{ page.description | safe }}">
-    <meta property="og:description" content="{{ page.description | safe }}" />
-    {% endif %}
-{% endblock meta_content %}
+  {% block meta_links %}
+  {% endblock meta_links %}
+  {% block meta_content %}
+  <meta name="twitter:title" content="Manank's —&nbsp;Blog">
+  <meta property="og:title" content="Manank's —&nbsp;Blog" />
+  {% endblock meta_content %}
 
   {% if config.extra.favicon.webmanifest %}
   <link href='{{ config.extra.favicon.webmanifest }}' rel="manifest" />

@@ -4,6 +4,30 @@
 {{ config.title }} | {{ page.title }}
 {% endblock %}
 
+<head>
+
+{% block meta_links %}
+  <meta property="og:url" content="{{config.base_url | safe}}/{{current_path | safe}}" />
+{% endblock meta_link %}
+
+{% block meta_content %}
+    {% if page.title %}
+    <meta name="twitter:title" content="{{page.title}} —&nbsp;Manank Patel">
+    <meta property="og:title" content="{{page.title}} —&nbsp;Manank Patel" />
+    {% else %}
+    <title>Manank's –&nbsp;Blog</title>
+    <meta name="twitter:title" content="Manank's —&nbsp;Blog">
+    <meta property="og:title" content="Manank's —&nbsp;Blog" />
+    {% endif %}
+    {% if page.description %}
+    <meta name="description" content="{{ page.description | safe }}" />
+    <meta name="twitter:description" content="{{ page.description | safe }}">
+    <meta property="og:description" content="{{ page.description | safe }}" />
+    {% endif %}
+{% endblock meta_content %}
+
+</head>
+
 {% block content %}
 <section class="section">
   <div class="container">
