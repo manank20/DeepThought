@@ -24,6 +24,10 @@
     <meta name="twitter:description" content="{{ page.description | safe }}">
     <meta property="og:description" content="{{ page.description | safe }}" />
     {% endif %}
+    {% if page.extra.image %}
+    <meta name="twitter:image" content="{{ config.base_url | safe }}/{{ page.extra.image | safe }}">
+    <meta property="og:image" content="{{ config.base_url | safe }}/{{ page.extra.image | safe }}">
+    {% endif %}
 {% endblock meta_content %}
 
 </head>
