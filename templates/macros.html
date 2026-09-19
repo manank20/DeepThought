@@ -1,4 +1,4 @@
-{% macro social_links(social_config) %}
+{% component social_links(social_config, config) %}
 <p>
   {% if social_config.facebook %}
   <a class="has-text-facebook" href="https://facebook.com/{{ social_config.facebook }}" target="_blank">
@@ -191,17 +191,17 @@
   </a>
   {% endif %}
 
-  {% if config.generate_feed %}
-  <a class="has-text-rss" href="{{ config.base_url }}/{{ config.feed_filename }}" target="_blank">
+  {% if config.generate_feeds and config.feed_filenames %}
+  <a class="has-text-rss" href="{{ config.base_url }}/{{ config.feed_filenames[0] }}" target="_blank">
     <span class="icon is-large" title="RSS Feed">
       <i class="fas fa-rss fa-lg"></i>
     </span>
   </a>
   {% endif %}
 </p>
-{% endmacro %}
+{% endcomponent %}
 
-{% macro page_publish_metadata(page) %}
+{% component page_publish_metadata(page, config) %}
 <span class="icon-text has-text-grey">
   <span class="icon">
     <i class="fas fa-user"></i>
@@ -212,9 +212,9 @@
   </span>
   <span><time datetime="{{ page.date }}">{{ page.date | date(format='%B %d, %Y') }}</time></span>
 </span>
-{% endmacro %}
+{% endcomponent %}
 
-{% macro page_content_metadata(page) %}
+{% component page_content_metadata(page) %}
 <span class="icon-text has-text-grey">
   <span class="icon">
     <i class="far fa-clock"></i>
@@ -225,13 +225,13 @@
   </span>
   <span>{{ page.word_count }} words</span>
 </span>
-{% endmacro %}
+{% endcomponent %}
 
-{% macro render_categories(categories) %}
+{% component render_categories(categories) %}
 <p>
   Categories:
   {% for category in categories %}
-  <a class="has-text-info-dark has-text-weight-semibold" href="{{ get_taxonomy_url(kind='categories', name=category) }}">
+  <a class="has-text-info-dark has-text-weight-semibold" href="{{ get_taxonomy_url(kind='categories', term=category) }}">
     <span class="icon-text">
       <span class="icon">
         <i class="fas fa-cube"></i>
@@ -241,13 +241,13 @@
   </a>
   {% endfor %}
 </p>
-{% endmacro %}
+{% endcomponent %}
 
-{% macro render_tags(tags) %}
+{% component render_tags(tags) %}
 <p>
   Tags:
   {% for tag in tags %}
-  <a class="has-text-info-dark has-text-weight-semibold" href="{{ get_taxonomy_url(kind='tags', name=tag) }}">
+  <a class="has-text-info-dark has-text-weight-semibold" href="{{ get_taxonomy_url(kind='tags', term=tag) }}">
     <span class="icon-text">
       <span class="icon">
         <i class="fas fa-tag"></i>
@@ -257,4 +257,4 @@
   </a>
   {% endfor %}
 </p>
-{% endmacro %}
+{% endcomponent %}

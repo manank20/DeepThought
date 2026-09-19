@@ -4,11 +4,9 @@
 {{ config.title }} | {{ page.title }}
 {% endblock %}
 
-<head>
-
 {% block meta_links %}
   <meta property="og:url" content="{{config.base_url | safe}}/{{current_path | safe}}" />
-{% endblock meta_link %}
+{% endblock meta_links %}
 
 {% block meta_content %}
     {% if page.title %}
@@ -30,8 +28,6 @@
     {% endif %}
 {% endblock meta_content %}
 
-</head>
-
 {% block content %}
 <section class="section">
   <div class="container">
@@ -44,19 +40,19 @@
           <p class="subtitle">{{ page.description }}</p>
           <div class="columns is-multiline is-gapless">
             <div class="column is-8">
-              {{ macros::page_publish_metadata(page=page) }}
+              {{ <page_publish_metadata page={page} config={config} /> }}
             </div>
             <div class="column is-4 has-text-right-desktop">
-              {{ macros::page_content_metadata(page=page) }}
+              {{ <page_content_metadata page={page} /> }}
             </div>
             <div class="column">
               {% if page.taxonomies.categories %}
-              {{ macros::render_categories(categories=page.taxonomies.categories) }}
+              {{ <render_categories categories={page.taxonomies.categories} /> }}
               {% endif %}
             </div>
             <div class="column has-text-right-desktop">
               {% if page.taxonomies.tags %}
-              {{ macros::render_tags(tags=page.taxonomies.tags) }}
+              {{ <render_tags tags={page.taxonomies.tags} /> }}
               {% endif %}
             </div>
           </div>

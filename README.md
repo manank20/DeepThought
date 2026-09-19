@@ -104,6 +104,27 @@
 - [x] Multilingual Navbar
 - [x] Katex
 
+## Zola 0.23 migration
+
+This version requires **Zola 0.23.6 or newer** and uses Tera 2 components.
+`templates/macros.html` and `templates/shortcodes/` retain their historical paths,
+but now define globally registered components: no macro imports are needed.
+For example, use `{{ <page_publish_metadata page={page} config={config} /> }}`
+in an overriding template. Components cannot implicitly access the caller's
+context; pass `config` where required, and pass `access_token` to `mapbox`.
+
+Content is templated by default. Replace old shortcode calls with component
+syntax and wrap literal Tera examples in `{% raw %}...{% endraw %}` (including
+inside Markdown code fences). The existing example pages demonstrate this.
+Optional configuration uses Tera's `?.` access where nested keys may be absent.
+The standalone example config uses `[markdown.highlighting]` and the current
+plural feed option names; its pre-existing feed behavior is retained.
+
+Verify this repository independently with `zola build` and
+`zola check --skip-external-links`. See the
+[Zola changelog](https://github.com/getzola/zola/blob/master/CHANGELOG.md#0230-2026-08-05)
+and [Tera migration guide](https://github.com/Keats/tera/blob/master/MIGRATION.md).
+
 <!-- Getting Started -->
 ## 	:toolbox: Getting Started
 
@@ -118,8 +139,8 @@ You need static site generator (SSG) [Zola](https://www.getzola.org/documentatio
 Follow zola's guide on [installing a theme](https://www.getzola.org/documentation/themes/installing-and-using-themes/).
 Make sure to add `theme = "DeepThought"` to your `config.toml`
 
-**Check zola version (only 0.9.0+)**
-Just to double-check to make sure you have the right version. It is not supported to use this theme with a version under 0.14.1.
+**Check Zola version (0.23.6+)**
+Check that Zola is version 0.23.6 or newer; older versions do not support these Tera 2 templates.
 
 <!-- Run Locally -->
 ### :running: Run Locally
@@ -257,11 +278,11 @@ This theme contains math formula support using [KaTeX](https://katex.org/),
 which can be enabled by setting `katex.enabled = true` in the `extra` section
 of `config.toml`.
 
-After enabling this extension, the `katex` short code can be used in documents:
+After enabling this extension, the `katex` component can be used in documents:
 
-- `{{ katex(body="\KaTeX") }}` to typeset a math formula inlined into a text,
+- `{% <katex> %}\KaTeX{% </katex> %}` to typeset a math formula inlined into a text,
   similar to `$...$` in LaTeX
-- `{% katex(block=true) %}\KaTeX{% end %}` to typeset a block of math formulas,
+- `{% <katex block={true}> %}\KaTeX{% </katex> %}` to typeset a block of math formulas,
   similar to `$$...$$` in LaTeX
 
 #### Automatic rendering without short codes
