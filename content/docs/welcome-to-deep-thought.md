@@ -86,11 +86,11 @@ We have them!
 ## Youtube
 
 with `youtube(id="the_id_here")`
-{{ youtube(id="dNRDvLACg5Q") }}
+{{ <youtube id="dNRDvLACg5Q" /> }}
 
 ## Vimeo
 with `vimeo(id="id_here")`
-{{ vimeo(id="115189988") }}
+{{ <vimeo id="115189988" /> }}
 
 ## Links
 

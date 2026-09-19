@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-<head>
+
  
 {% block meta_links %}
 <meta property="og:url" content="{{config.base_url | safe}}/{{current_path | safe}}" />
-{% endblock meta_link %}
+{% endblock meta_links %}
 
-</head>
+
 {% block content %}
 <section class="section">
   <div class="container">
@@ -17,7 +17,7 @@
         <img class="is-rounded" src="{{ config.extra.author.avatar }}" style="max-width: 192px" />
       </figure>
       {% endif %}
-      {{ macros:: social_links( social_config=config.extra.social) }}
+      {{ <social_links social_config={config.extra.social} config={config} /> }}
     </div>
     <div class="content">
       {{ section.content | safe }}

@@ -1,6 +1,7 @@
+{% component mapbox(access_token, zoom=6) %}
 <div class="map mb-6" style='height: 450px;'>
     <div class="mapbox-access-token">
-        {{config.extra.mapbox.access_token}}
+        {{access_token}}
     </div>
     <div class="mapbox-zoom">
         {{zoom}}
@@ -9,3 +10,4 @@
         {{body}}
     </div>
 </div>
+{% endcomponent %}
