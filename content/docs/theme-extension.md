@@ -1,7 +1,7 @@
 +++
 title = "Theme extension"
-description = "Extending a theme"
-date = 2022-02-07
+description = "Extending DeepThought v2 without copying the whole theme."
+date = 2026-01-17
 
 [taxonomies]
 categories = ["Documentation"]
@@ -12,32 +12,59 @@ toc = true
 comments = false
 +++
 
-DeepThought theme can be extended with [usual Zola extension mechanisms](https://www.getzola.org/documentation/themes/extending-a-theme/).
+DeepThought v2 follows [Zola's theme extension mechanisms](https://www.getzola.org/documentation/themes/extending-a-theme/). Keep site-specific content and configuration in the consuming site; override a template or static asset only when the generic theme contract is not enough.
 
 <!-- more -->
 
-# Replacing a template
+## Replacing a template
 
-As any theme, all DeepThought templates [can be replaced to override a whole template](https://www.getzola.org/documentation/themes/extending-a-theme/#replacing-a-template).
+All theme templates can be replaced by creating a file at the same relative path in the consumer's `templates/` directory. The theme install identifier remains `DeepThought` even though its display name is `DeepThought v2`.
 
-# Blocks to extend
+## Extending a block
 
-If you don't want to replace a whole DeepThought template, but override parts of it, [you can extend the template and redefine some specific blocks](https://www.getzola.org/documentation/themes/extending-a-theme/#overriding-a-block).
+If a complete replacement is unnecessary, extend the theme template and redefine a block:
 
-Here is a WIP list of blocks in DeepThought templates to override:
+{% raw %}
+```tera
+{% extends "DeepThought/templates/base.html" %}
 
-| Template location[^1] | Block | Description |
-| ------ | ----------- | -- |
-| `base.html` | `user_custom_stylesheet` | Custom stylesheet (css or saas) to fine-tune DeepThought styling |
-| `base.html` | `title` | Customize default page's titles |
-| `base.html` | `analytics` | Provide your own analytics script. Google Analytics by default |
-| `base.html` | `header` | Customize page's header |
-| `base.html` | `content` | Customize page's content |
-| `base.html` | `search` | Provide your own search box partial template |
-| `base.html` | `pagination` | Override default pagination |
-| `base.html` | `comment` | Provide your own pagination partial template |
-| `base.html` | `other_lang_search_js` | Provide custom search behavior, eg. [to use languages others than English](https://github.com/RatanShreshtha/DeepThought/#elasticlunr-search-in-other-language) |
-| `base.html` | `user_custom_js` | Provide any custom JS scripts at the end of the body of the page |
+{% block analytics %}
+  {# Add site-specific analytics, or call the normal implementation. #}
+{% endblock analytics %}
+```
+{% endraw %}
 
----
-[^1]: Relative to the `templates` directory
+The reusable base exposes these blocks:
+
+| Template | Block | Purpose |
+| --- | --- | --- |
+| `base.html` | `title` | Page title |
+| `base.html` | `meta_links` | Canonical and Open Graph URL links |
+| `base.html` | `meta_content` | Page-specific metadata |
+| `base.html` | `analytics` | Optional analytics |
+| `base.html` | `header` | Additional header content |
+| `base.html` | `content` | Main page content |
+| `base.html` | `search` | Search dialog |
+| `base.html` | `pagination` | Section pagination |
+| `base.html` | `comment` | Page comments |
+| `base.html` | `footer` | Footer |
+| `base.html` | `custom_js` | Page-specific scripts |
+| `base.html` | `user_custom_js` | Site-specific scripts |
+
+## Static overrides
+
+A consuming site's `static/site.css` or `static/js/site.js` can intentionally override the theme assets through Zola's normal lookup rules. Keep overrides focused; the v2 surface has no Bulma dependency, icon-font dependency, Sass payload, motion declarations, or card surface to preserve.
+
+## Highlighting exception
+
+Highlighting `extra_themes` is resolved from the directory containing the consuming `config.toml`, not through the theme's static lookup. Use this path in a parent site:
+
+```toml
+[markdown.highlighting]
+theme = "github-dark-accessible"
+extra_themes = ["themes/DeepThought/highlighting/github-dark-accessible.json"]
+```
+
+## Rich components
+
+The theme registers the `chart`, `galleria`, `katex`, `mapbox`, `mermaid`, `vimeo`, and `youtube` components from `templates/shortcodes/`. Their markup can be replaced in a consumer when a site needs different providers or accessibility copy.

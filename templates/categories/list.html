@@ -1,27 +1,24 @@
 {% extends "base.html" %}
 
+{% block title %}Categories | {{ config.title }}{% endblock title %}
+
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="has-text-centered">
-      <h1 class="title is-2">
-        <span class="icon">
-          <i class="fas fa-cubes"></i>
-        </span>
-        Categories
-      </h1>
-      <p class='subtitle is-4'>{{ terms | length }} categories in total</p>
-      <p>
-        {% for category in terms %}
-        <a href="{{ get_taxonomy_url(kind='categories', term=category.name) }}" class="mr-4">
-          <span class="icon">
-            <i class="fas fa-cube"></i>
-          </span>
-          <span>{{category.name}} <sup>{{ category.pages | length }}</sup></span>
-        </a>
-        {% endfor %}
-      </p>
-    </div>
+<main class="site-main" id="main-content">
+  <div class="taxonomy-page">
+    <header class="page-header">
+      <h1 class="taxonomy-title">Categories</h1>
+      {% set term_count = terms | length %}
+      <p class="taxonomy-description">{{ term_count }} {% if term_count == 1 %}category{% else %}categories{% endif %}</p>
+    </header>
+    <ul class="taxonomy-terms">
+      {% for category in terms %}
+      <li class="taxonomy-term">
+        <a href="{{ get_taxonomy_url(kind='categories', term=category.name) }}">{{ category.name }}</a>
+        {% set post_count = category.pages | length %}
+        <span class="taxonomy-term__count">{{ post_count }} {% if post_count == 1 %}post{% else %}posts{% endif %}</span>
+      </li>
+      {% endfor %}
+    </ul>
   </div>
-</section>
+</main>
 {% endblock content %}

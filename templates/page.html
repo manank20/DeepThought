@@ -1,240 +1,128 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}
-{{ config.title }} | {{ page.title }}
-{% endblock %}
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock title %}
 
 {% block meta_links %}
-  <meta property="og:url" content="{{config.base_url | safe}}/{{current_path | safe}}" />
+  <meta property="og:url" content="{{ page.permalink | safe }}">
 {% endblock meta_links %}
 
 {% block meta_content %}
-    {% if page.title %}
-    <meta name="twitter:title" content="{{page.title}} —&nbsp;Manank Patel">
-    <meta property="og:title" content="{{page.title}} —&nbsp;Manank Patel" />
-    {% else %}
-    <title>Manank's –&nbsp;Blog</title>
-    <meta name="twitter:title" content="Manank's —&nbsp;Blog">
-    <meta property="og:title" content="Manank's —&nbsp;Blog" />
-    {% endif %}
-    {% if page.description %}
-    <meta name="description" content="{{ page.description | safe }}" />
-    <meta name="twitter:description" content="{{ page.description | safe }}">
-    <meta property="og:description" content="{{ page.description | safe }}" />
-    {% endif %}
-    {% if page.extra.image %}
-    <meta name="twitter:image" content="{{ config.base_url | safe }}/{{ page.extra.image | safe }}">
-    <meta property="og:image" content="{{ config.base_url | safe }}/{{ page.extra.image | safe }}">
-    {% endif %}
+  <meta name="twitter:title" content="{{ page.title }} — {{ config.title }}">
+  <meta property="og:title" content="{{ page.title }} — {{ config.title }}">
+  {% if page.description %}
+  <meta name="description" content="{{ page.description | safe }}">
+  <meta name="twitter:description" content="{{ page.description | safe }}">
+  <meta property="og:description" content="{{ page.description | safe }}">
+  {% endif %}
+  {% if page.extra?.image %}
+  <meta name="twitter:image" content="{{ config.base_url | safe }}/{{ page.extra.image | safe }}">
+  <meta property="og:image" content="{{ config.base_url | safe }}/{{ page.extra.image | safe }}">
+  {% endif %}
 {% endblock meta_content %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="columns">
-      <div class="column is-8 is-offset-2">
-        <article class="box">
-          <h1 class="title">
-            {{ page.title }}
-          </h1>
-          <p class="subtitle">{{ page.description }}</p>
-          <div class="columns is-multiline is-gapless">
-            <div class="column is-8">
-              {{ <page_publish_metadata page={page} config={config} /> }}
-            </div>
-            <div class="column is-4 has-text-right-desktop">
-              {{ <page_content_metadata page={page} /> }}
-            </div>
-            <div class="column">
-              {% if page.taxonomies.categories %}
-              {{ <render_categories categories={page.taxonomies.categories} /> }}
-              {% endif %}
-            </div>
-            <div class="column has-text-right-desktop">
-              {% if page.taxonomies.tags %}
-              {{ <render_tags tags={page.taxonomies.tags} /> }}
-              {% endif %}
-            </div>
-          </div>
-          <div class="content mt-2">
-            {{ page.content | safe }}
-          </div>
-        </article>
-      </div>
-      {% if page.extra.toc %}
-      <div class="column is-2 is-hidden-mobile">
-        <aside class="menu" style="position: sticky; top: 48px">
-          <p class="heading has-text-weight-bold">Contents</p>
-          <ul class="menu-list">
-            {% for h1 in page.toc %}
-            <li>
-              <a id="link-{{h1.id}}" class="toc is-size-7 {% if loop.first %}is-active{% endif %}"
-                href="{{ h1.permalink | safe }}">
-                {{ h1.title }}
-              </a>
-              {% if h1.children %}
-              <ul>
-                {% for h2 in h1.children %}
-                <li>
-                  <a id="link-{{h2.id}}" class="toc is-size-7" href="{{ h2.permalink | safe }}">
-                    {{ h2.title }}
-                  </a>
-                </li>
-                {% endfor %}
-              </ul>
-              {% endif %}
-            </li>
-            {% endfor %}
-          </ul>
-        </aside>
-      </div>
+<main class="site-main" id="main-content">
+  <div class="reading-layout">
+    <aside aria-label="Article navigation" class="article-aside">
+      {% if page.extra?.toc and page.toc %}
+      <details class="desktop-toc" open>
+        <summary aria-label="Toggle contents"><span>Contents</span></summary>
+        <nav aria-label="On this page">
+          {% include "partials/toc.html" %}
+        </nav>
+      </details>
       {% endif %}
-    </div>
+    </aside>
+
+    <article class="reading-column">
+      <header class="article-header">
+        {% if page.taxonomies.categories %}
+        <p class="article-kicker">
+          {% for category in page.taxonomies.categories %}
+          <a href="{{ get_taxonomy_url(kind='categories', term=category) }}">{{ category }}</a>{% if not loop.last %}<span aria-hidden="true"> · </span>{% endif %}
+          {% endfor %}
+        </p>
+        {% endif %}
+        <h1 class="article-title">{{ page.title }}</h1>
+        {% if page.description %}
+        <p class="article-description">{{ page.description }}</p>
+        {% endif %}
+        <div class="article-meta">
+          {% if config.extra.author?.name %}<span>By {{ config.extra.author.name }}</span>{% endif %}
+          {% if page.date %}<time datetime="{{ page.date }}">{{ page.date | date(format='%B %d, %Y') }}</time>{% endif %}
+          <span>{{ page.reading_time }} min read</span>
+          <span>{{ page.word_count }} words</span>
+          {% if config.extra.policy?.url %}<a href="{{ config.extra.policy.url | replace(from='$BASE_URL', to=config.base_url) }}">{{ config.extra.policy.label | default(value='AI Policy') }}</a>{% endif %}
+        </div>
+      </header>
+
+      {% if page.extra?.toc and page.toc %}
+      <details class="mobile-toc">
+        <summary>On this page</summary>
+        <nav aria-label="On this page">
+          {% include "partials/toc.html" %}
+        </nav>
+      </details>
+      {% endif %}
+
+      <div class="prose">
+        {{ page.content | safe }}
+      </div>
+
+      {% if page.taxonomies.tags %}
+      <footer class="article-footer">
+        <p class="article-tags-label">Tags</p>
+        <ul class="tag-list">
+          {% for tag in page.taxonomies.tags %}
+          <li><a href="{{ get_taxonomy_url(kind='tags', term=tag) }}">{{ tag }}</a></li>
+          {% endfor %}
+        </ul>
+      </footer>
+      {% endif %}
+    </article>
+
   </div>
-</section>
-{% endblock %}
+</main>
+{% endblock content %}
 
 {% block pagination %}
 {% if page.earlier or page.later or page.lighter or page.heavier or page.higher or page.lower %}
-<section class="section">
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <nav class="level">
-          {% if page.later %}
-          <div class="level-item has-text-centered">
-            <a class="button is-black is-outlined" href="{{ page.later.permalink }}">
-              <span class="icon mr-2">
-                <i class="fas fa-arrow-circle-left"></i>
-              </span>
-              {{ page.later.title }}
-            </a>
-          </div>
-          {% endif %} {% if page.earlier %}
-          <div class="level-item has-text-centered">
-            <a class="button is-black is-outlined" href="{{ page.earlier.permalink }}">
-              {{ page.earlier.title }}<span class="icon ml-2">
-                <i class="fas fa-arrow-circle-right"></i>
-              </span>
-            </a>
-          </div>
-          {% endif %} {% if page.heavier %}
-          <div class="level-item has-text-centered">
-            <a class="button is-black is-outlined" href="{{ page.heavier.permalink }}">
-              <span class="icon mr-2">
-                <i class="fas fa-arrow-circle-left"></i>
-              </span>
-              {{ page.heavier.title }}
-            </a>
-          </div>
-          {% endif %} {% if page.lighter %}
-          <div class="level-item has-text-centered">
-            <a class="button is-black is-outlined" href="{{ page.lighter.permalink }}">
-              {{ page.lighter.title }}<span class="icon ml-2">
-                <i class="fas fa-arrow-circle-right"></i>
-              </span>
-            </a>
-          </div>
-          {% endif %} {% if page.higher %}
-          <div class="level-item has-text-centered">
-            <a class="button is-black is-outlined" href="{{ page.higher.permalink }}">
-              <span class="icon mr-2">
-                <i class="fas fa-arrow-circle-left"></i>
-              </span>
-              {{ page.higher.title }}
-            </a>
-          </div>
-          {% endif %} {% if page.lower %}
-          <div class="level-item has-text-centered">
-            <a class="button is-black is-outlined" href="{{ page.lower.permalink }}">
-              {{ page.lower.title }}<span class="icon ml-2">
-                <i class="fas fa-arrow-circle-right"></i>
-              </span>
-            </a>
-          </div>
-          {% endif %}
-        </nav>
-      </div>
-    </div>
-  </div>
-</section>
+<nav aria-label="More posts" class="post-pagination site-shell">
+  {% if page.later %}<a href="{{ page.later.permalink }}">Newer: {{ page.later.title }}</a>{% endif %}
+  {% if page.earlier %}<a href="{{ page.earlier.permalink }}">Older: {{ page.earlier.title }}</a>{% endif %}
+  {% if page.heavier %}<a href="{{ page.heavier.permalink }}">Previous: {{ page.heavier.title }}</a>{% endif %}
+  {% if page.lighter %}<a href="{{ page.lighter.permalink }}">Next: {{ page.lighter.title }}</a>{% endif %}
+  {% if page.higher %}<a href="{{ page.higher.permalink }}">Previous: {{ page.higher.title }}</a>{% endif %}
+  {% if page.lower %}<a href="{{ page.lower.permalink }}">Next: {{ page.lower.title }}</a>{% endif %}
+</nav>
 {% endif %}
-{% endblock %}
+{% endblock pagination %}
 
 {% block comment %}
-{% if page.extra.comments and config.extra.commenting.disqus %}
-<section class="section">
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column is-6">
-        <div id="disqus_thread"></div>
-      </div>
-    </div>
+{% if page.extra?.comments and config.extra.commenting?.disqus %}
+<section class="comments site-main">
+  <div class="prose-layout">
+    <div id="disqus_thread"></div>
   </div>
 </section>
 {% endif %}
-{% endblock %}
+{% endblock comment %}
 
 {% block custom_js %}
-{% if page.extra.toc %}
-<script type="text/javascript">
-  const menuBarHeight = document.querySelector("nav.navbar").clientHeight;
-  const tocItems = document.querySelectorAll(".toc");
-  const navSections = new Array(tocItems.length);
-
-  tocItems.forEach((el, i) => {
-    let id = el.getAttribute("id").substring(5);
-    navSections[i] = document.getElementById(id);
-  })
-
-  function isVisible(tocIndex) {
-    const current = navSections[tocIndex];
-    const next = tocIndex < tocItems.length - 1 ? navSections[tocIndex + 1]
-      : document.querySelectorAll("section.section").item(1);
-
-    const c = current.getBoundingClientRect();
-    const n = next.getBoundingClientRect();
-    const h = (window.innerHeight || document.documentElement.clientHeight);
-
-    return (c.top <= h) && (n.top - menuBarHeight >= 0);
-  }
-
-  function activateIfVisible() {
-    for (b = true, i = 0; i < tocItems.length; i++) {
-      if (b && isVisible(i)) {
-        tocItems[i].classList.add('is-active');
-        b = false;
-      } else
-        tocItems[i].classList.remove('is-active');
-    }
-  }
-
-  var isTicking = null;
-  window.addEventListener('scroll', () => {
-    if (!isTicking) {
-      window.requestAnimationFrame(() => {
-        activateIfVisible();
-        isTicking = false;
-      });
-      isTicking = true;
-    }
-  }, false);
-</script>
-{% endif %}
-
-{% if page.extra.comments and config.extra.commenting.disqus %}
+{% if page.extra?.comments and config.extra.commenting?.disqus %}
 <script>
   var disqus_config = function () {
-    this.page.url = "{{config.base_url | safe}}";
-    this.page.identifier = "{{ current_path | safe}}";
+    this.page.url = "{{ page.permalink | safe }}";
+    this.page.identifier = "{{ current_path | safe }}";
   };
 
   (function () {
-    var d = document, s = d.createElement('script');
-    s.src = 'https://{{ config.extra.commenting.disqus | safe}}.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-  })();
+    var d = document;
+    var script = d.createElement("script");
+    script.src = "https://{{ config.extra.commenting.disqus | safe }}.disqus.com/embed.js";
+    script.setAttribute("data-timestamp", +new Date());
+    (d.head || d.body).appendChild(script);
+  }());
 </script>
 {% endif %}
-{% endblock %}
+{% endblock custom_js %}

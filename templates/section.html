@@ -1,68 +1,59 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}
-{{ config.title }} | {{ section.title }}
-{% endblock title %}
+{% block title %}{{ section.title }} | {{ config.title }}{% endblock title %}
+
+{% block meta_links %}
+  <meta property="og:url" content="{{ section.permalink | safe }}">
+{% endblock meta_links %}
+
+{% block meta_content %}
+  <meta name="twitter:title" content="{{ section.title }} — {{ config.title }}">
+  <meta property="og:title" content="{{ section.title }} — {{ config.title }}">
+  {% if section.description %}
+  <meta name="description" content="{{ section.description | safe }}">
+  <meta name="twitter:description" content="{{ section.description | safe }}">
+  <meta property="og:description" content="{{ section.description | safe }}">
+  {% endif %}
+{% endblock meta_content %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="has-text-centered">
-      <h1 class="title is-2">{{ section.title }}</h1>
-      <p class="subtitle is-4">{{ section.description }}</p>
-    </div>
-    <div class="content">
-      {{ section.content | safe }}
-    </div>
-    <div class="columns is-centered">
-      <div class="column is-9">
-        {% if paginator %}
-        {% set pages = paginator.pages %}
-        {% else %}
-        {% set pages = section.pages %}
-        {% endif %}
+<main class="site-main" id="main-content">
+  <div class="site-shell">
+    <header class="editorial-intro">
+      <h1 class="page-title">{{ section.title }}</h1>
+      {% if section.description %}<p class="page-description">{{ section.description }}</p>{% endif %}
+      {% if section.content %}
+      <div class="prose">{{ section.content | safe }}</div>
+      {% endif %}
+    </header>
 
-        {% for page in pages %}
-        <article class="box">
-          <h2 class="title">
-            <a class="has-text-dark" href='{{ page.permalink }}'>
-              {{ page.title }}
-            </a>
-          </h2>
-          <p class="subtitle">{{ page.description }}</p>
-          <div class="columns is-multiline is-gapless">
-            <div class="column is-8">
-              {{ <page_publish_metadata page={page} config={config} /> }}
-            </div>
-            <div class="column is-4 has-text-right-desktop">
-              {{ <page_content_metadata page={page} /> }}
-            </div>
-          </div>
-          <div class="content mt-2">
-            {{ page.summary | safe }}
-            <a class="has-text-danger-dark has-text-weight-semibold" href='{{ page.permalink }}'>
-              Read More
-              <span class="icon is-small">
-                <i class="fas fa-arrow-right fa-xs"></i>
-              </span>
-            </a>
-          </div>
-          <div class="columns">
-            <div class="column">
-              {% if page.taxonomies.categories %}
-              {{ <render_categories categories={page.taxonomies.categories} /> }}
-              {% endif %}
-            </div>
-            <div class="column has-text-right-desktop">
-              {% if page.taxonomies.tags %}
-              {{ <render_tags tags={page.taxonomies.tags} /> }}
-              {% endif %}
-            </div>
-          </div>
-        </article>
-        {% endfor %}
-      </div>
-    </div>
+    {% if paginator %}
+    {% set pages = paginator.pages %}
+    {% else %}
+    {% set pages = section.pages %}
+    {% endif %}
+
+    <section aria-labelledby="post-list-heading" class="editorial-list">
+      <h2 class="editorial-list__heading" id="post-list-heading">Posts</h2>
+      {% for page in pages %}
+      <article class="post-listing">
+        {% if page.taxonomies.categories %}
+        <p class="post-listing__category">
+          {% for category in page.taxonomies.categories %}
+          <a href="{{ get_taxonomy_url(kind='categories', term=category) }}">{{ category }}</a>{% if not loop.last %}<span aria-hidden="true"> · </span>{% endif %}
+          {% endfor %}
+        </p>
+        {% endif %}
+        <h3 class="post-listing__title"><a href="{{ page.permalink }}">{{ page.title }}</a></h3>
+        <p class="post-listing__meta">
+          {% if page.date %}<time datetime="{{ page.date }}">{{ page.date | date(format='%B %d, %Y') }}</time>{% endif %}
+          <span>{{ page.reading_time }} min read</span>
+        </p>
+        {% if page.description %}<p class="post-listing__description">{{ page.description }}</p>{% endif %}
+        <a class="post-listing__link" href="{{ page.permalink }}">Read post</a>
+      </article>
+      {% endfor %}
+    </section>
   </div>
-</section>
-{% endblock %}
+</main>
+{% endblock content %}

@@ -1,13 +1,7 @@
 {% component mapbox(access_token, zoom=6) %}
-<div class="map mb-6" style='height: 450px;'>
-    <div class="mapbox-access-token">
-        {{access_token}}
-    </div>
-    <div class="mapbox-zoom">
-        {{zoom}}
-    </div>
-     <div class="mapbox-geojson">
-        {{body}}
-    </div>
+<div class="map rich-map" aria-label="Interactive map">
+  <div class="mapbox-access-token" hidden>{{ access_token }}</div>
+  <div class="mapbox-zoom" hidden>{{ zoom }}</div>
+  <pre class="mapbox-geojson" hidden>{{ body }}</pre>
 </div>
 {% endcomponent %}

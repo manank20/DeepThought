@@ -1,7 +1,7 @@
-name = "DeepThought"
-description = "A simple blog theme focused on writing powered by Bulma and Zola."
+name = "DeepThought v2"
+description = "A typography-first, no-motion Zola theme for long-form writing."
 license = "MIT"
-homepage = "https://github.com/RatanShreshtha/DeepThought"
+homepage = "https://github.com/manank20/DeepThought"
 
 min_version = "0.23.6"
 
