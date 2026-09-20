@@ -1,330 +1,360 @@
 "use strict";
 
-function debounce(func, wait) {
-  var timeout;
+(function () {
+  function storageGet(key) {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (error) {
+      return null;
+    }
+  }
 
-  return function () {
-    var context = this;
-    var args = arguments;
-    clearTimeout(timeout);
+  function storageSet(key, value) {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch (error) {
+      // Theme selection still applies for this page when storage is unavailable.
+    }
+  }
 
-    timeout = setTimeout(function () {
-      timeout = null;
-      func.apply(context, args);
-    }, wait);
-  };
-}
+  function setTheme(theme) {
+    var isDark = theme === "dark";
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+    var themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) {
+      themeColor.setAttribute("content", isDark ? "#171b1f" : "#fbfbfa");
+    }
+    var button = document.getElementById("dark-mode");
+    if (button) {
+      button.setAttribute("aria-pressed", isDark ? "true" : "false");
+      button.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
+      button.textContent = "Theme";
+    }
+  }
 
-function makeTeaser(body, terms) {
-  var TERM_WEIGHT = 40;
-  var NORMAL_WORD_WEIGHT = 2;
-  var FIRST_WORD_WEIGHT = 8;
-  var TEASER_MAX_WORDS = 10;
+  function initTheme() {
+    setTheme(storageGet("theme") === "dark" ? "dark" : "light");
+    var button = document.getElementById("dark-mode");
+    if (button) {
+      button.addEventListener("click", function () {
+        var nextTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        storageSet("theme", nextTheme);
+        setTheme(nextTheme);
+      });
+    }
+  }
 
-  var stemmedTerms = terms.map(function (w) {
-    return elasticlunr.stemmer(w.toLowerCase());
-  });
-  var termFound = false;
-  var index = 0;
-  var weighted = [];
-
-  var sentences = body.toLowerCase().split(". ");
-
-  for (var i in sentences) {
-    var words = sentences[i].split(" ");
-    var value = FIRST_WORD_WEIGHT;
-
-    for (var j in words) {
-      var word = words[j];
-
-      if (word.length > 0) {
-        for (var k in stemmedTerms) {
-          if (elasticlunr.stemmer(word).startsWith(stemmedTerms[k])) {
-            value = TERM_WEIGHT;
-            termFound = true;
-          }
+  function initCurrentNavigation() {
+    var currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+    document.querySelectorAll("[data-nav-link]").forEach(function (link) {
+      try {
+        var linkPath = new URL(link.href, window.location.href).pathname.replace(/\/$/, "") || "/";
+        if (linkPath === currentPath) {
+          link.setAttribute("aria-current", "page");
         }
-        weighted.push([word, value, index]);
-        value = NORMAL_WORD_WEIGHT;
+      } catch (error) {
+        // A malformed optional navigation item should not break the rest of the site.
       }
-
-      index += word.length;
-      index += 1;
-    }
-
-    index += 1;
-  }
-
-  if (weighted.length === 0) {
-    return body;
-  }
-
-  var windowWeights = [];
-  var windowSize = Math.min(weighted.length, TEASER_MAX_WORDS);
-
-  var curSum = 0;
-  for (var i = 0; i < windowSize; i++) {
-    curSum += weighted[i][1];
-  }
-  windowWeights.push(curSum);
-
-  for (var i = 0; i < weighted.length - windowSize; i++) {
-    curSum -= weighted[i][1];
-    curSum += weighted[i + windowSize][1];
-    windowWeights.push(curSum);
-  }
-
-  var maxSumIndex = 0;
-  if (termFound) {
-    var maxFound = 0;
-    for (var i = windowWeights.length - 1; i >= 0; i--) {
-      if (windowWeights[i] > maxFound) {
-        maxFound = windowWeights[i];
-        maxSumIndex = i;
-      }
-    }
-  }
-
-  var teaser = [];
-  var startIndex = weighted[maxSumIndex][2];
-  for (var i = maxSumIndex; i < maxSumIndex + windowSize; i++) {
-    var word = weighted[i];
-    if (startIndex < word[2]) {
-      teaser.push(body.substring(startIndex, word[2]));
-      startIndex = word[2];
-    }
-
-    if (word[1] === TERM_WEIGHT) {
-      teaser.push("<b>");
-    }
-    startIndex = word[2] + word[0].length;
-    teaser.push(body.substring(word[2], startIndex));
-
-    if (word[1] === TERM_WEIGHT) {
-      teaser.push("</b>");
-    }
-  }
-  teaser.push("…");
-  return teaser.join("");
-}
-
-function formatSearchResultItem(item, terms) {
-  return (
-    `<article class='box'>` +
-    `<h1 class='title'>` +
-    `<a class='link' class='link' href='${item.ref}'>${item.doc.title}</a>` +
-    `</h1>` +
-    `<div class='content mt-2'>` +
-    `${makeTeaser(item.doc.body, terms)}` +
-    `<a href='${item.ref}'>` +
-    `Read More <span class="icon is-small"><i class="fas fa-arrow-right fa-xs"></i></span>` +
-    `</a>` +
-    `</div>` +
-    `</article>`
-  );
-}
-
-function search() {
-  var $searchInput = document.getElementById("search");
-  var $searchResults = document.querySelector(".search-results");
-  var $searchResultsItems = document.querySelector(".search-results__items");
-  var MAX_ITEMS = 10;
-
-  var options = {
-    bool: "AND",
-    fields: {
-      title: { boost: 2 },
-      body: { boost: 1 },
-    },
-  };
-  var currentTerm = "";
-  var index = elasticlunr.Index.load(window.searchIndex);
-
-  $searchInput.addEventListener(
-    "keyup",
-    debounce(function () {
-      var term = $searchInput.value.trim();
-      if (term === currentTerm || !index) {
-        return;
-      }
-      $searchResults.style.display = term === "" ? "none" : "block";
-      $searchResultsItems.innerHTML = "";
-      if (term === "") {
-        return;
-      }
-
-      var results = index.search(term, options);
-      if (results.length === 0) {
-        $searchResults.style.display = "none";
-        return;
-      }
-
-      currentTerm = term;
-      for (var i = 0; i < Math.min(results.length, MAX_ITEMS); i++) {
-        var item = document.createElement("div");
-        item.classList.add("mb-4");
-        item.innerHTML = formatSearchResultItem(results[i], term.split(" "));
-        $searchResultsItems.appendChild(item);
-      }
-    }, 150)
-  );
-}
-
-function documentReadyCallback() {
-
-  if (localStorage.getItem("theme") === "dark") {
-    document.body.setAttribute("theme", "dark");
-    document.querySelectorAll("img, picture, video, pre").forEach(img => img.setAttribute("theme", "dark"));
-    document.querySelectorAll(".vimeo, .youtube, .chart").forEach(video => video.setAttribute("theme", "dark"));
-    document.getElementById("dark-mode").setAttribute("title", "Switch to light theme");
-  }
-
-  document.querySelector(".navbar-burger").addEventListener("click", () => {
-    document.querySelector(".navbar-burger").classList.toggle("is-active");
-    document.querySelector(".navbar-menu").classList.toggle("is-active");
-  });
-
-  document.querySelectorAll("div.navbar-end > .navbar-item").forEach((el) => {
-    if (location.href.includes(el.getAttribute("href"))) {
-      document.querySelectorAll("a.navbar-item.is-active").forEach(itm => itm.classList.remove("is-active"));
-      el.classList.add("is-active");
-    }
-  })
-
-  document.getElementById("nav-search").addEventListener("click", (evt) => {
-    //let target = evt.currentTarget.getAttribute("data-target");
-    document.querySelector("html").classList.add("is-clipped");
-    document.getElementById("search-modal").classList.add("is-active");
-
-    document.getElementById("search").focus();
-    document.getElementById("search").select();
-  });
-
-  document.querySelector(".modal-close").addEventListener("click", (evt) => {
-    document.querySelector("html").classList.remove("is-clipped");
-    evt.currentTarget.parentElement.classList.remove("is-active");
-  });
-
-  document.querySelector(".modal-background").addEventListener("click", (evt) => {
-    document.querySelector("html").classList.remove("is-clipped");
-    evt.currentTarget.parentElement.classList.remove("is-active");
-  });
-
-  document.getElementById("search").addEventListener("keyup", () => {
-    search();
-  });
-
-  document.getElementById("dark-mode").addEventListener("click", () => {
-    if (
-      localStorage.getItem("theme") == null ||
-      localStorage.getItem("theme") == "light"
-    ) {
-      localStorage.setItem("theme", "dark");
-      document.body.setAttribute("theme", "dark");
-      document.querySelectorAll("img, picture, video, pre").forEach(img => img.setAttribute("theme", "dark"));
-      document.querySelectorAll(".vimeo, .youtube, .chart").forEach(video => video.setAttribute("theme", "dark"));
-
-      document.getElementById("dark-mode").setAttribute("title", "Switch to light theme");
-    } else {
-      localStorage.setItem("theme", "light");
-      document.body.removeAttribute("theme", "dark");
-      document.querySelectorAll("img, picture, video, pre").forEach(img => img.removeAttribute("theme", "dark"))
-      document.querySelectorAll(".vimeo, .youtube, .chart").forEach(video => video.removeAttribute("theme", "dark"));
-
-      document.getElementById("dark-mode").setAttribute("title", "Switch to dark theme");
-    }
-  });
-
-  if (typeof mermaid !== "undefined") {
-    mermaid.initialize({ startOnLoad: true });
-  }
-
-  if (typeof chartXkcd !== "undefined") {
-    document.querySelectorAll(".chart").forEach((el, i) => {
-      el.setAttribute("id", `chart-${i}`);
-
-      let svg = document.getElementById(`chart-${i}`);
-      let { type, ...chartData } = JSON.parse(el.textContent);
-      new chartXkcd[type](svg, chartData);
     });
   }
 
-  if (typeof Galleria !== "undefined") {
-    document.querySelectorAll(".galleria").forEach((el, i) => {
-      el.setAttribute("id", `galleria-${i}`);
+  function plainText(value) {
+    var element = document.createElement("div");
+    element.innerHTML = value || "";
+    return (element.textContent || element.innerText || "").replace(/\s+/g, " ").trim();
+  }
 
-      let { images } = JSON.parse(el.textContent);
+  function makeTeaser(body) {
+    var text = plainText(body);
+    if (text.length <= 240) {
+      return text;
+    }
+    return text.substring(0, 237).replace(/\s+\S*$/, "") + "…";
+  }
 
-      for (let image of images) {
-        el.insertAdjacentHTML("beforeend",
-          `<a href="${image.src}"><img src="${image.src}" data-title="${image.title}" data-description="${image.description}"></a>`
-        );
+  function searchResults(index, term, target) {
+    target.innerHTML = "";
+    if (!term) {
+      return;
+    }
+
+    if (!index) {
+      var unavailable = document.createElement("p");
+      unavailable.className = "search-results__empty";
+      unavailable.textContent = "Search is unavailable on this page.";
+      target.appendChild(unavailable);
+      return;
+    }
+
+    var results = index.search(term, {
+      bool: "AND",
+      fields: {
+        title: { boost: 2 },
+        body: { boost: 1 }
       }
+    });
 
-      Galleria.run(".galleria");
+    if (results.length === 0) {
+      var empty = document.createElement("p");
+      empty.className = "search-results__empty";
+      empty.textContent = "No results.";
+      target.appendChild(empty);
+      return;
+    }
+
+    results.slice(0, 10).forEach(function (result) {
+      var item = document.createElement("article");
+      item.className = "search-result";
+
+      var heading = document.createElement("h3");
+      var link = document.createElement("a");
+      link.href = result.ref;
+      link.textContent = result.doc.title;
+      heading.appendChild(link);
+      item.appendChild(heading);
+
+      var excerpt = document.createElement("p");
+      excerpt.textContent = makeTeaser(result.doc.body);
+      item.appendChild(excerpt);
+      target.appendChild(item);
     });
   }
 
-  if (typeof mapboxgl !== "undefined") {
-    document.querySelectorAll(".map").forEach((el, i) => {
-      el.setAttribute("id", `map-${i}`);
+  function initSearch() {
+    var openButton = document.getElementById("nav-search");
+    var modal = document.getElementById("search-modal");
+    var input = document.getElementById("search");
+    var resultsTarget = document.querySelector(".search-results__items");
+    if (!openButton || !modal || !input || !resultsTarget) {
+      return;
+    }
 
-      mapboxgl.accessToken = el.querySelector(".mapbox-access-token").textContent.trim();
-      let zoom = el.querySelector(".mapbox-zoom").textContent.trim();
+    var index = null;
+    if (window.elasticlunr && window.searchIndex) {
+      index = window.elasticlunr.Index.load(window.searchIndex);
+    }
+    var lastFocus = null;
+    var previousOverflow = "";
+    var backgroundState = [];
 
-      let map = new mapboxgl.Map({
-        container: `map-${i}`,
-        style: "mapbox://styles/mapbox/light-v10",
-        center: [-96, 37.8],
-        zoom: zoom,
+    function focusableElements() {
+      return Array.prototype.slice.call(modal.querySelectorAll(
+        "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
+      )).filter(function (element) {
+        return !element.hidden && element.getClientRects().length > 0;
       });
+    }
 
-      map.addControl(new mapboxgl.NavigationControl());
+    function setBackgroundInert(isInert) {
+      if (isInert) {
+        backgroundState = [];
+        Array.prototype.forEach.call(document.body.children, function (element) {
+          if (element === modal) {
+            return;
+          }
+          backgroundState.push({
+            element: element,
+            inert: element.inert,
+            ariaHidden: element.getAttribute("aria-hidden")
+          });
+          element.inert = true;
+          element.setAttribute("aria-hidden", "true");
+        });
+        return;
+      }
 
-      let geojson = JSON.parse(el.querySelector(".mapbox-geojson").textContent.trim());
-
-      const center = [0, 0];
-
-      geojson.features.forEach(function (marker) {
-        center[0] += marker.geometry.coordinates[0];
-        center[1] += marker.geometry.coordinates[1];
-
-        new mapboxgl.Marker()
-          .setLngLat(marker.geometry.coordinates)
-          .setPopup(
-            new mapboxgl.Popup({ offset: 25 }) // add popups
-              .setHTML(
-                "<h3>" +
-                marker.properties.title +
-                "</h3><p>" +
-                marker.properties.description +
-                "</p>"
-              )
-          )
-          .addTo(map);
+      backgroundState.forEach(function (state) {
+        state.element.inert = state.inert;
+        if (state.ariaHidden === null) {
+          state.element.removeAttribute("aria-hidden");
+        } else {
+          state.element.setAttribute("aria-hidden", state.ariaHidden);
+        }
       });
+      backgroundState = [];
+    }
 
-      center[0] = center[0] / geojson.features.length;
-      center[1] = center[1] / geojson.features.length;
+    function restoreFocus(element) {
+      if (!element || typeof element.focus !== "function") {
+        return;
+      }
+      try {
+        element.focus({ preventScroll: true });
+      } catch (error) {
+        element.focus();
+      }
+    }
 
-      map.setCenter(center);
+    function closeSearch() {
+      if (modal.hidden) {
+        return;
+      }
+      modal.hidden = true;
+      modal.setAttribute("aria-hidden", "true");
+      document.documentElement.style.overflow = previousOverflow;
+      setBackgroundInert(false);
+      var focusTarget = lastFocus;
+      lastFocus = null;
+      restoreFocus(focusTarget);
+    }
+
+    function openSearch() {
+      if (!modal.hidden) {
+        return;
+      }
+      lastFocus = document.activeElement;
+      previousOverflow = document.documentElement.style.overflow;
+      modal.hidden = false;
+      modal.setAttribute("aria-hidden", "false");
+      setBackgroundInert(true);
+      document.documentElement.style.overflow = "hidden";
+      input.focus();
+      input.select();
+    }
+
+    function trapFocus(event) {
+      if (modal.hidden || event.key !== "Tab") {
+        return;
+      }
+      var focusable = focusableElements();
+      if (!focusable.length) {
+        event.preventDefault();
+        return;
+      }
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      var active = document.activeElement;
+      if (!modal.contains(active)) {
+        event.preventDefault();
+        first.focus();
+      } else if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    function enforceFocus(event) {
+      if (!modal.hidden && !modal.contains(event.target)) {
+        var focusable = focusableElements();
+        restoreFocus(focusable[0] || input);
+      }
+    }
+
+    openButton.addEventListener("click", openSearch);
+    modal.querySelectorAll("[data-search-close]").forEach(function (closeButton) {
+      closeButton.addEventListener("click", closeSearch);
+    });
+    document.addEventListener("keydown", function (event) {
+      if (modal.hidden) {
+        return;
+      }
+      if (event.key === "Escape") {
+        closeSearch();
+        return;
+      }
+      trapFocus(event);
+    });
+    document.addEventListener("focusin", enforceFocus);
+    input.addEventListener("input", function () {
+      searchResults(index, input.value.trim(), resultsTarget);
     });
   }
 
-  if (typeof renderMathInElement !== "undefined") {
-    renderMathInElement(document.body, {
-      delimiters: [
-        { left: '$$', right: '$$', display: true },
-        { left: '$', right: '$', display: false },
-        { left: '\\(', right: '\\)', display: false },
-        { left: '\\[', right: '\\]', display: true }
-      ]
-    });
-  }
-};
+  function initOptionalFeatures() {
+    if (typeof mermaid !== "undefined" && typeof mermaid.initialize === "function") {
+      mermaid.initialize({ startOnLoad: true });
+    }
 
-if (document.readyState === 'loading') {  // Loading hasn't finished yet
-  document.addEventListener('DOMContentLoaded', documentReadyCallback);
-} else {  // `DOMContentLoaded` has already fired
-  documentReadyCallback();
-}
+    if (typeof chartXkcd !== "undefined") {
+      document.querySelectorAll(".chart").forEach(function (element, index) {
+        element.setAttribute("id", "chart-" + index);
+        var chart = JSON.parse(element.textContent);
+        var type = chart.type;
+        delete chart.type;
+        new chartXkcd[type](element, chart);
+      });
+    }
+
+    if (typeof Galleria !== "undefined") {
+      document.querySelectorAll(".galleria").forEach(function (element, index) {
+        element.setAttribute("id", "galleria-" + index);
+        var data = JSON.parse(element.textContent);
+        data.images.forEach(function (image) {
+          var link = document.createElement("a");
+          link.href = image.src;
+          var imageElement = document.createElement("img");
+          imageElement.src = image.src;
+          imageElement.alt = image.title || "";
+          imageElement.dataset.title = image.title || "";
+          imageElement.dataset.description = image.description || "";
+          link.appendChild(imageElement);
+          element.appendChild(link);
+        });
+        Galleria.run("#galleria-" + index, { transition: "none" });
+        element.querySelectorAll("*").forEach(function (child) {
+          child.style.setProperty("transition", "none", "important");
+          child.style.setProperty("animation", "none", "important");
+        });
+      });
+    }
+
+    if (typeof mapboxgl !== "undefined") {
+      document.querySelectorAll(".map").forEach(function (element, index) {
+        element.setAttribute("id", "map-" + index);
+        mapboxgl.accessToken = element.querySelector(".mapbox-access-token").textContent.trim();
+        var zoom = element.querySelector(".mapbox-zoom").textContent.trim();
+        var map = new mapboxgl.Map({
+          container: "map-" + index,
+          style: "mapbox://styles/mapbox/light-v10",
+          center: [-96, 37.8],
+          zoom: zoom
+        });
+        map.addControl(new mapboxgl.NavigationControl());
+        var geojson = JSON.parse(element.querySelector(".mapbox-geojson").textContent.trim());
+        var center = [0, 0];
+        geojson.features.forEach(function (marker) {
+          center[0] += marker.geometry.coordinates[0];
+          center[1] += marker.geometry.coordinates[1];
+          new mapboxgl.Marker()
+            .setLngLat(marker.geometry.coordinates)
+            .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(
+              "<h3>" + marker.properties.title + "</h3><p>" + marker.properties.description + "</p>"
+            ))
+            .addTo(map);
+        });
+        if (geojson.features.length) {
+          center[0] /= geojson.features.length;
+          center[1] /= geojson.features.length;
+          map.setCenter(center);
+        }
+      });
+    }
+
+    if (typeof renderMathInElement !== "undefined") {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false },
+          { left: "\\(", right: "\\)", display: false },
+          { left: "\\[", right: "\\]", display: true }
+        ]
+      });
+    }
+  }
+
+  function ready() {
+    initTheme();
+    initCurrentNavigation();
+    initSearch();
+    initOptionalFeatures();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ready);
+  } else {
+    ready();
+  }
+}());

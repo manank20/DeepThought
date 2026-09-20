@@ -1,6 +1,6 @@
 +++
-title = "Extended Shortcodes"
-description = "Few more shortcodes provided by DeepThought."
+title = "Extended components"
+description = "Rich-content components provided by DeepThought v2."
 date = 2020-08-29
 
 [taxonomies]
@@ -12,8 +12,8 @@ toc = true
 comments = true
 +++
 
-DeepThought provides Tera components for rich content in Zola 0.23.6+.
-Please, have a look at the [Config Options](/docs/config-options#external-libraries)
+DeepThought v2 provides semantic Tera components for rich content in Zola 0.23.6+.
+Please, have a look at the [configuration options](/docs/config-options/#rich-content-components)
 that explain how to enable them.
 
 <!-- more -->
@@ -827,3 +827,20 @@ A radar chart provides a way of displaying multivariate data in the form of a tw
 - [Lazyartistgallery](https://unsplash.com/@rahulp9800?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText) on [Unsplash](https://unsplash.com/@rahulp9800?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText)
 - [Saira](https://unsplash.com/@sairaa?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText) on [Unsplash](https://unsplash.com/@sairaa?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText)
 - [Waldemar Brandt](https://unsplash.com/@waldemarbrandt67w?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText) on [Unsplash](https://unsplash.com/@waldemarbrandt67w?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText)
+
+# Video embeds
+
+The theme keeps YouTube and Vimeo embeds responsive and lazy-loaded. The provider may be unavailable in an offline browser run, but the local container remains bounded.
+
+**Code**
+
+```
+{% raw %}{{ <youtube id="dNRDvLACg5Q" /> }}
+{{ <vimeo id="115189988" /> }}{% endraw %}
+```
+
+**Output**
+
+{{ <youtube id="dNRDvLACg5Q" /> }}
+
+{{ <vimeo id="115189988" /> }}

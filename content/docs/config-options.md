@@ -1,36 +1,74 @@
 +++
-title = "Config Options"
-description = "Few config options provides by DeepThought theme."
-date = 2020-08-30
+title = "Configuration options"
+description = "The required and optional configuration accepted by DeepThought v2."
+date = 2026-01-16
 
 [taxonomies]
 categories = ["Documentation"]
-tags = ["theme", "zola"]
+tags = ["theme", "zola", "configuration"]
 
 [extra]
 toc = true
 comments = false
 +++
 
-DeepThought theme provides some config option like option to add favicon to your site, add avatar for profile, setup social links for the profile etc
+DeepThought v2 requires only `base_url`, `title`, and `theme = "DeepThought"` in a consuming site. The directory name remains `DeepThought`; the display name is `DeepThought v2`.
 
-<!-- more -->
-
-# Site Configurations
-
-## Author Details
-
-You can configure author details in `[extra.author]` of `config.toml` file.
+## Minimal consumer
 
 ```toml
-[extra.author]
-name = "<your_name>"
-avatar = "<path_to_avatar>"
+base_url = "https://example.com"
+title = "An example site"
+theme = "DeepThought"
 ```
 
-## Favicon Setup
+A consumer can omit every `extra` table and can also omit `build_search_index`. Search controls and search assets are rendered only when Zola builds the search index.
 
-You can configure favicon in `[extra.favicon]` of `config.toml` file. You can use something like [realfavicongenerator](https://realfavicongenerator.net/) to generate your favicon.
+## Site navigation and identity
+
+These values are optional and site-specific:
+
+```toml
+[extra]
+navbar_items = [
+  { code = "en", nav_items = [
+    { url = "$BASE_URL/", name = "Home" },
+    { url = "$BASE_URL/posts/", name = "Posts" },
+  ] },
+]
+featured_page = "posts/post-0.md"
+
+[extra.author]
+name = "Example author"
+avatar = "/images/avatar.png"
+
+[extra.social]
+email = "author@example.com"
+github = "example"
+twitter = "example"
+mastodon_username = "@example"
+mastodon_server = "mastodon.social"
+```
+
+The Mastodon username may include a leading `@`; the theme normalizes it before building the profile URL. The social component supports email, GitHub, GitLab, LinkedIn, Instagram, X/Twitter, Mastodon, Facebook, Keybase, Stack Overflow, Reddit, Discord, Behance, YouTube, Tumblr, Twitch, dev.to, Bitbucket, Medium, SoundCloud, Google Play, ORCID, Google Scholar, and an optional feed link.
+
+`featured_page` is optional. When present, it is resolved with Zola's `get_page` function and shown as a featured post on the home section.
+
+## Optional policy link
+
+The theme does not require a policy page. To add a configured link, set the public URL explicitly:
+
+```toml
+[extra.policy]
+label = "AI Policy"
+url = "$BASE_URL/ai-policy/"
+```
+
+`$BASE_URL` is replaced in the same way as navigation URLs. The URL is rendered in article metadata and the article aside; the page itself remains the consuming site's responsibility.
+
+## Favicon, analytics, and comments
+
+Each nested table is optional:
 
 ```toml
 [extra.favicon]
@@ -39,106 +77,53 @@ favicon_32x32 = "/icons/favicon-32x32.png"
 apple_touch_icon = "/icons/apple-touch-icon.png"
 safari_pinned_tab = "/icons/safari-pinned-tab.svg"
 webmanifest = "/icons/site.webmanifest"
-```
 
-## Social Link Setup
-
-You can configure social links in `[extra.social]` of `config.toml` file.
-
-```toml
-[extra.social]
-email = "<email_id>"
-facebook = "<facebook_username>"
-github = "<github_username>"
-gitlab = "<gitlab_username>"
-keybase = "<keybase_username>"
-linkedin = "<linkedin_username>"
-stackoverflow = "<stackoverflow_userid>"
-twitter = "<twitter_username>"
-instagram = "<instagram_username>"
-behance = "<behance_username>"
-google_scholar = "<googlescholar_userid>"
-orcid = "<orcid_userid>"
-mastodon_username = "<mastadon_username>"
-mastodon_server = "<mastodon_server>" (if not set, defaults to mastodon.social)
-```
-
-## Google Analytics Setup
-
-**DeepThought** supports google analytics out of the box. You can configure google in `[extra.analytics]` of `config.toml` file. 
-
-```toml
 [extra.analytics]
-google = "<your_gtag>"
-```
+google = "G-XXXXXXXXXX"
 
-## Disqus Comments Setup
-
-**DeepThought** supports disqus commenting out of the box. You can configure disqus in `[extra.commenting]` of `config.toml` file. 
-
-```toml
 [extra.commenting]
-disqus = "<your_disqus>"
+disqus = "your-shortname"
 ```
 
-## External Libraries
+A page opts into comments with `comments = true` in its `[extra]` front matter. The standalone demo deliberately leaves analytics and Disqus unconfigured.
 
-### Mermaid, Chart and Galleria
+## Search and highlighting
 
-To gain the features displayed in [Extended Shortcodes](/docs/extended-shortcodes),
-enable the libraries you want to use in the `[extra]` section of `config.toml`.
+Search requires Zola's generated index:
 
 ```toml
-chart.enabled = true
-mermaid.enabled = true
-galleria.enabled = true
+build_search_index = true
 ```
 
-### Mapbox
-
-**DeepThought** supports Mapbox out of the box to add maps in your posts.
-You can enable it and set an access token in the `[extra.mapbox]` section of `config.toml`.
+The custom accessible palette is selected by the standalone demo with a theme-relative path:
 
 ```toml
-[extra.mapbox]
-enabled = true
-access_token = "<your_access_token>"
+[markdown.highlighting]
+theme = "github-dark-accessible"
+extra_themes = ["highlighting/github-dark-accessible.json"]
 ```
 
-### KaTeX
+For a consumer, Zola resolves `extra_themes` relative to the consuming configuration directory, so use `themes/DeepThought/highlighting/github-dark-accessible.json` when selecting the theme-owned file from the parent site.
 
-This theme contains math formula support using [KaTeX](https://katex.org/).
-To enable KaTeX in your project, set the following in the `[extra]` section of `config.toml`:
+## Rich-content components
+
+Enable only the external libraries a site needs:
+
 ```toml
 [extra]
 katex.enabled = true
-katex.auto_render = true    # automatic rendering without shortcodes
+katex.auto_render = true
+chart.enabled = true
+mermaid.enabled = true
+galleria.enabled = true
+
+[extra.mapbox]
+enabled = true
+access_token = "your-public-token"
 ```
 
-# Section Configurations
+The supported components are `chart`, `galleria`, `katex`, `mapbox`, `mermaid`, `vimeo`, and `youtube`. Their local markup is responsive and overflow-safe. Mermaid, Chart.xkcd, Galleria, Mapbox, and KaTeX execute from third-party CDNs; network availability is outside the theme's local build guarantees.
 
-Apart from standard config you can also add a `description` in your `_index.md` file for your sections that appears in listing.
+## Pagination, table of contents, and metadata
 
-```toml
-description = "Blog posts accumulated over the time."
-```
-
-# Page Configurations
-
-## Enable Table Of Content
-
-In order to enable `toc` for your post change as below code snippet in your page.
-
-```toml
-[extra]
-toc = true
-```
-
-## Enable Comments
-
-In order to enable `comments` for your post change as below code snippet in your page.
-
-```toml
-[extra]
-comments = true
-```
+Use normal Zola section pagination. Set `toc = true` on a page to render its heading navigation. Article metadata retains author, date, reading time, word count, categories, tags, page-specific descriptions, canonical URLs, and optional images.

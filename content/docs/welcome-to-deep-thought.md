@@ -1,126 +1,50 @@
 +++
-title = "Welcome to DeepThought"
-description = "A simple blog theme focused on writing powered by Bulma and Zola"
-date = 2020-08-31
+title = "Welcome to DeepThought v2"
+description = "A compact tour of the typography-first demo."
+date = 2026-01-18
+
 [taxonomies]
 categories = ["Documentation"]
-tags = ["theme", "zola"]
+tags = ["theme", "zola", "markdown"]
 
 [extra]
 comments = false
 +++
 
-This is a small example post of stuff you can do with the `DeepThought` theme.
-We'll try to represent all possible markdown and shortcode combinations here
-so you can develop easily.
+This is a small example post for DeepThought v2. It exercises ordinary Markdown, syntax-highlighted code, tables, long links, and the quiet article layout used by the standalone demo.
 
 <!-- more -->
 
-## Here's some lists
+## Lists and headings
 
-- let's list some stuff
-- unordered, of course.
+- unordered lists remain ordinary list content
+- nested content stays inside the reading measure
 
-1. We can also order lists
-    1. And nesting here works too
-    2. We can do whatever we want!
-2. And drop back to the original indentation.
+1. ordered lists are readable
+2. headings create the optional table of contents
 
-# Headers
-
-## Smaller
-
-### Smaller still!
-
-#### Can't really get much smaller than this
-
-##### Even if you try
-
-###### It won't do anything
-
-We can also *italicize* stuff, or make it **bold**.
-
-# Code
-
-Want some Rust code?  We got Rust code.
+## Code
 
 ```rust
-
-// `vst` uses macros, so we'll need to specify that we're using them!
-#[macro_use]
-extern crate vst;
-
-// We're implementing a trait `Plugin` that does all the VST-y stuff for us.
-impl Plugin for Whisper {
-    fn get_info(&self) -> Info {
-        Info {
-            name: "Whisper".to_string()
-        }
+// The comments are deliberately visible in the accessible highlighting palette.
+fn answer(input: &str) -> Result<&str, &'static str> {
+    if input.is_empty() {
+        return Err("empty input");
     }
+    Ok(input)
 }
-
 ```
 
-We can also add a filename to our code blocks which is super useful when
-providing tutorials, etc.  Here's some HTML we can insert into our
-markdown file right before the code block.  (Meta, right?)
+## Links and tables
 
-<div class='filename'>
-  <div>www/index.html</div>
-</div>
+[Read the configuration guide](/docs/config-options/) for the complete contract. A table is allowed to be wider than the prose measure and receives local horizontal overflow rather than widening the document.
 
-```html
-<div class='filename'>
-  <div>src/lib.rs</div>
-</div>
-```
+| Feature | Configuration |
+| --- | --- |
+| Search | `build_search_index = true` |
+| Featured post | `extra.featured_page` |
+| Policy link | `extra.policy.url` |
 
-If we want, we can also `specify inline code` which is useful for `the small stuff`.
+## Rich content
 
-## Horizontal rules
-
-We have them!
-
----
-
-## Youtube
-
-with `youtube(id="the_id_here")`
-{{ <youtube id="dNRDvLACg5Q" /> }}
-
-## Vimeo
-with `vimeo(id="id_here")`
-{{ <vimeo id="115189988" /> }}
-
-## Links
-
-[Of Course](https://deepthought-theme.netlify.app/)
-
-## Tables
-You can make tables in markdown, too!  Who would have thought.  Are these styled yet?
-
-First Header  | Second Header
-------------- | -------------
-Content Cell  | Content Cell
-Content Cell  | Content Cell
-
-## Foldable Text
-
-<details>
-    <summary>Title 1</summary>
-    <p>Content 1 Content 1 Content 1 Content 1 Content 1</p>
-</details>
-
-<details>
-    <summary>Title 2</summary>
-    <p>Content 2 Content 2 Content 2 Content 2 Content 2</p>
-</details>
-
-We can do that like this:
-
-```html
-<details>
-    <summary>Title 1</summary>
-    <p>Content 1 Content 1 Content 1 Content 1 Content 1</p>
-</details>
-```
+The [extended shortcode examples](/docs/extended-shortcodes/) demonstrate Mermaid, Chart.xkcd, Galleria, Mapbox, video embeds, and KaTeX. Third-party CDN execution is optional and may be blocked in offline builds; the theme still emits bounded local markup.

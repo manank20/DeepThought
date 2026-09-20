@@ -1,27 +1,65 @@
 {% extends "base.html" %}
 
- 
+{% block title %}{{ section.title }} | {{ config.title }}{% endblock title %}
+
 {% block meta_links %}
-<meta property="og:url" content="{{config.base_url | safe}}/{{current_path | safe}}" />
+  <meta property="og:url" content="{{ section.permalink | safe }}">
 {% endblock meta_links %}
 
+{% block meta_content %}
+  <meta name="twitter:title" content="{{ section.title }} — {{ config.title }}">
+  <meta property="og:title" content="{{ section.title }} — {{ config.title }}">
+  {% if section.description %}
+  <meta name="description" content="{{ section.description | safe }}">
+  <meta name="twitter:description" content="{{ section.description | safe }}">
+  <meta property="og:description" content="{{ section.description | safe }}">
+  {% endif %}
+{% endblock meta_content %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="has-text-centered">
-      <h1 class="title is-2">{{ section.title }}</h1>
-      <p class="subtitle is-4">{{ section.description }}</p>
-      {% if config.extra.author.avatar %}
-      <figure class="image is-flex is-justify-content-center is-align-items-center">
-        <img class="is-rounded" src="{{ config.extra.author.avatar }}" style="max-width: 192px" />
-      </figure>
+{% if config.extra.featured_page %}
+{% set featured = get_page(path=config.extra.featured_page) %}
+{% endif %}
+<main class="site-main" id="main-content">
+  <div class="site-shell home-layout">
+    <header class="home-intro">
+      <div class="home-intro__copy">
+        <h1 class="home-title">{{ section.title }}</h1>
+        {% if section.description %}<p class="home-description">{{ section.description }}</p>{% endif %}
+        {% if config.extra.social %}{{ <social_links social_config={config.extra.social} config={config} /> }}{% endif %}
+      </div>
+      {% if config.extra.author?.avatar %}
+      <img alt="{{ config.extra.author.name | default(value='Author') }}" class="home-intro__portrait" src="{{ config.extra.author.avatar }}">
       {% endif %}
-      {{ <social_links social_config={config.extra.social} config={config} /> }}
+    </header>
+
+    <div class="prose-layout">
+      <div class="prose">
+        {{ section.content | safe }}
+      </div>
     </div>
-    <div class="content">
-      {{ section.content | safe }}
-    </div>
+
+    {% if featured %}
+    <section aria-labelledby="featured-heading" class="featured-list">
+      <h2 class="featured-list__heading" id="featured-heading">Featured post</h2>
+      <article class="post-listing">
+        {% if featured.taxonomies.categories %}
+        <p class="post-listing__category">
+          {% for category in featured.taxonomies.categories %}
+          <a href="{{ get_taxonomy_url(kind='categories', term=category) }}">{{ category }}</a>{% if not loop.last %}<span aria-hidden="true"> · </span>{% endif %}
+          {% endfor %}
+        </p>
+        {% endif %}
+        <h3 class="post-listing__title"><a href="{{ featured.permalink }}">{{ featured.title }}</a></h3>
+        <p class="post-listing__meta">
+          {% if featured.date %}<time datetime="{{ featured.date }}">{{ featured.date | date(format='%B %d, %Y') }}</time>{% endif %}
+          <span>{{ featured.reading_time }} min read</span>
+        </p>
+        {% if featured.description %}<p class="post-listing__description">{{ featured.description }}</p>{% endif %}
+        <a class="post-listing__link" href="{{ featured.permalink }}">Read post</a>
+      </article>
+    </section>
+    {% endif %}
   </div>
-</section>
-{% endblock %}
+</main>
+{% endblock content %}

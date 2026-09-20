@@ -1,76 +1,35 @@
 {% extends "base.html" %}
 
-{% block header %}
-<header class='hero'>
-  <div class='hero-body pb-0'>
-    <div class='container'>
-      <div class='has-text-centered'>
-        <h1 class="title">
-          <span class="icon-text">
-            <span class="icon">
-              <i class="fas fa-tag"></i>
-            </span>
-            <span>{{ term.name }}</span>
-          </span>
-        </h1>
-      </div>
-    </div>
-  </div>
-</header>
-{% endblock %}
+{% block title %}{{ term.name }} | Tags | {{ config.title }}{% endblock title %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column is-9">
-        {% if paginator %}
-        {% set pages = paginator.pages %}
-        {% else %}
-        {% set pages = term.pages %}
-        {% endif %}
+<main class="site-main" id="main-content">
+  <div class="site-shell">
+    <header class="editorial-intro">
+      <p class="post-listing__category">Tag</p>
+      <h1 class="taxonomy-title">{{ term.name }}</h1>
+    </header>
 
-        {% for page in pages %}
-        <article class="box">
-          <h2 class="title">
-            <a href='{{ page.permalink }}'>
-              {{ page.title }}
-            </a>
-          </h2>
-          <p class="subtitle">{{ page.description }}</p>
-          <div class="columns is-multiline is-gapless">
-            <div class="column is-8">
-              {{ <page_publish_metadata page={page} config={config} /> }}
-            </div>
-            <div class="column is-4 has-text-right-desktop">
-              {{ <page_content_metadata page={page} /> }}
-            </div>
-          </div>
-          <div class="content mt-2">
-            {{ page.summary | safe }}
-            <a href='{{ page.permalink }}'>
-              Read More
-              <span class="icon is-small">
-                <i class="fas fa-arrow-right fa-xs"></i>
-              </span>
-            </a>
-          </div>
-          <div class="columns">
-            <div class="column">
-              {% if page.taxonomies.categories %}
-              {{ <render_categories categories={page.taxonomies.categories} /> }}
-              {% endif %}
-            </div>
-            <div class="column has-text-right-desktop">
-              {% if page.taxonomies.tags %}
-              {{ <render_tags tags={page.taxonomies.tags} /> }}
-              {% endif %}
-            </div>
-          </div>
-        </article>
-        {% endfor %}
-      </div>
-    </div>
+    {% if paginator %}
+    {% set pages = paginator.pages %}
+    {% else %}
+    {% set pages = term.pages %}
+    {% endif %}
+
+    <section aria-labelledby="tag-posts-heading" class="editorial-list">
+      <h2 class="editorial-list__heading" id="tag-posts-heading">Posts</h2>
+      {% for page in pages %}
+      <article class="post-listing">
+        <h3 class="post-listing__title"><a href="{{ page.permalink }}">{{ page.title }}</a></h3>
+        <p class="post-listing__meta">
+          {% if page.date %}<time datetime="{{ page.date }}">{{ page.date | date(format='%B %d, %Y') }}</time>{% endif %}
+          <span>{{ page.reading_time }} min read</span>
+        </p>
+        {% if page.description %}<p class="post-listing__description">{{ page.description }}</p>{% endif %}
+        <a class="post-listing__link" href="{{ page.permalink }}">Read post</a>
+      </article>
+      {% endfor %}
+    </section>
   </div>
-</section>
+</main>
 {% endblock content %}

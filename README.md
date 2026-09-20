@@ -1,354 +1,152 @@
-<div align="center">
+# DeepThought v2
 
-  <img src="static/images/avatar.png" alt="logo" width="200" height="auto" />
-  <h1>DeepThought</h1>
-  
-  <p>
-    A simple blog theme focused on writing powered by Bulma and Zola.
-  </p>
-  
-  
-<!-- Badges -->
-<p>
-  <a href="https://github.com/RatanShreshtha/DeepThought/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/RatanShreshtha/DeepThought" alt="contributors" />
-  </a>
-  <a href="">
-    <img src="https://img.shields.io/github/last-commit/RatanShreshtha/DeepThought" alt="last update" />
-  </a>
-  <a href="https://github.com/RatanShreshtha/DeepThought/network/members">
-    <img src="https://img.shields.io/github/forks/RatanShreshtha/DeepThought" alt="forks" />
-  </a>
-  <a href="https://github.com/RatanShreshtha/DeepThought/stargazers">
-    <img src="https://img.shields.io/github/stars/RatanShreshtha/DeepThought" alt="stars" />
-  </a>
-  <a href="https://github.com/RatanShreshtha/DeepThought/issues/">
-    <img src="https://img.shields.io/github/issues/RatanShreshtha/DeepThought" alt="open issues" />
-  </a>
-  <a href="https://github.com/RatanShreshtha/DeepThought/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/RatanShreshtha/DeepThought.svg" alt="license" />
-  </a>
-</p>
-   
-<h4>
-    <a href="https://github.com/RatanShreshtha/DeepThought/">View Demo</a>
-  <span> · </span>
-    <a href="https://github.com/RatanShreshtha/DeepThought">Documentation</a>
-  <span> · </span>
-    <a href="https://github.com/RatanShreshtha/DeepThought/issues/">Report Bug</a>
-  <span> · </span>
-    <a href="https://github.com/RatanShreshtha/DeepThought/issues/">Request Feature</a>
-  </h4>
-</div>
+DeepThought v2 is a typography-first Zola theme for long-form writing. It keeps the page surface editorial and quiet: semantic HTML, a readable prose measure, responsive overflow containment, light/dark palettes, and no CSS motion. The reusable implementation lives in this theme repository; a consuming site keeps its own content and configuration.
 
-<br />
+![DeepThought v2 desktop light](screenshots/deepthought-v2-desktop-light.png)
 
-<!-- Table of Contents -->
-# :notebook_with_decorative_cover: Table of Contents
+## Screenshots
 
-- [:notebook_with_decorative_cover: Table of Contents](#notebook_with_decorative_cover-table-of-contents)
-  - [:star2: About the Project](#star2-about-the-project)
-    - [:camera: Screenshots](#camera-screenshots)
-    - [:space_invader: Tech Stack](#space_invader-tech-stack)
-    - [:dart: Features](#dart-features)
-  - [:toolbox: Getting Started](#toolbox-getting-started)
-    - [:bangbang: Prerequisites](#bangbang-prerequisites)
-    - [:gear: Installation](#gear-installation)
-    - [:running: Run Locally](#running-run-locally)
-    - [:triangular_flag_on_post: Deployment](#triangular_flag_on_post-deployment)
-  - [:eyes: Usage](#eyes-usage)
-      - [Multilingual Navbar](#multilingual-navbar)
-    - [KaTeX math formula support](#katex-math-formula-support)
-      - [Automatic rendering without short codes](#automatic-rendering-without-short-codes)
-    - [Elasticlunr search in other language](#elasticlunr-search-in-other-language)
-  - [:wave: Contributing](#wave-contributing)
-  - [:warning: License](#warning-license)
-  - [:handshake: Contact](#handshake-contact)
-  - [:gem: Acknowledgements](#gem-acknowledgements)
+| View | Light | Dark |
+| --- | --- | --- |
+| Mobile, 390px | [light](screenshots/deepthought-v2-mobile-light.png) | [dark](screenshots/deepthought-v2-mobile-dark.png) |
+| Desktop, 1440px | [light](screenshots/deepthought-v2-desktop-light.png) | [dark](screenshots/deepthought-v2-desktop-dark.png) |
 
-  
+These are screenshots of the standalone demo generated from this checkout, not a mockup or a consuming site.
 
-<!-- About the Project -->
-## :star2: About the Project
+## Requirements
 
+- Zola 0.23.6 or newer
+- Tera 2 template support, provided by Zola 0.23.6+
+- Node.js and Playwright only for the browser regression harness and screenshots
 
-<!-- Screenshots -->
-### :camera: Screenshots
+## Installation
 
-<div align="center"> 
-  <img src="screenshot.png" alt="screenshot" />
-</div>
-
-
-<!-- TechStack -->
-### :space_invader: Tech Stack
-
-
-- [Zola](https://www.getzola.org/) - Your one-stop static site engine
-- [Bulma](https://bulma.io/) - The modern CSS framework that just works. 
-
-<!-- Features -->
-### :dart: Features
-
-- [x] Dark Mode
-- [x] Pagination
-- [x] Search
-- [x] Charts
-- [x] Maps
-- [x] Diagrams
-- [x] Galleria
-- [x] Analytics
-- [x] Comments
-- [x] Categories
-- [x] Social Links
-- [x] Multilingual Navbar
-- [x] Katex
-
-## Zola 0.23 migration
-
-This version requires **Zola 0.23.6 or newer** and uses Tera 2 components.
-`templates/macros.html` and `templates/shortcodes/` retain their historical paths,
-but now define globally registered components: no macro imports are needed.
-For example, use `{{ <page_publish_metadata page={page} config={config} /> }}`
-in an overriding template. Components cannot implicitly access the caller's
-context; pass `config` where required, and pass `access_token` to `mapbox`.
-
-Content is templated by default. Replace old shortcode calls with component
-syntax and wrap literal Tera examples in `{% raw %}...{% endraw %}` (including
-inside Markdown code fences). The existing example pages demonstrate this.
-Optional configuration uses Tera's `?.` access where nested keys may be absent.
-The standalone example config uses `[markdown.highlighting]` and the current
-plural feed option names; its pre-existing feed behavior is retained.
-
-Verify this repository independently with `zola build` and
-`zola check --skip-external-links`. See the
-[Zola changelog](https://github.com/getzola/zola/blob/master/CHANGELOG.md#0230-2026-08-05)
-and [Tera migration guide](https://github.com/Keats/tera/blob/master/MIGRATION.md).
-
-<!-- Getting Started -->
-## 	:toolbox: Getting Started
-
-<!-- Prerequisites -->
-### :bangbang: Prerequisites
-
-You need static site generator (SSG) [Zola](https://www.getzola.org/documentation/getting-started/installation/) installed in your machine to use this theme follow their guide on [getting started](https://www.getzola.org/documentation/getting-started/overview/).
-
-<!-- Installation -->
-### :gear: Installation
-
-Follow zola's guide on [installing a theme](https://www.getzola.org/documentation/themes/installing-and-using-themes/).
-Make sure to add `theme = "DeepThought"` to your `config.toml`
-
-**Check Zola version (0.23.6+)**
-Check that Zola is version 0.23.6 or newer; older versions do not support these Tera 2 templates.
-
-<!-- Run Locally -->
-### :running: Run Locally
-
-Go into your sites directory and type `zola serve`. You should see your new site at `localhost:1111`.
-
-**NOTE**: you must provide the theme options variables in `config.toml` to serve a functioning site
-
-<!-- Deployment -->
-### :triangular_flag_on_post: Deployment
-
-[Zola](https://www.getzola.org) already has great documentation for deploying to [Netlify](https://www.getzola.org/documentation/deployment/netlify/) or [Github Pages](https://www.getzola.org/documentation/deployment/github-pages/). I won't bore you with a regurgitated explanation.
-
-<!-- Usage -->
-## :eyes: Usage
-
-Following options are available with the `DeepThought` theme
+Install or clone this repository at `themes/DeepThought` in a Zola site, then select the directory identifier exactly as follows:
 
 ```toml
-# Enable external libraries
+theme = "DeepThought"
+```
+
+The install identifier is `DeepThought`; `DeepThought v2` is the display name in `theme.toml`. Keep the original `LICENSE` and attribution when redistributing the theme.
+
+## Minimum configuration
+
+Only these site values are required:
+
+```toml
+base_url = "https://example.com"
+title = "An example site"
+theme = "DeepThought"
+```
+
+The theme does not require a policy page, author table, social table, favicon table, analytics credentials, comments credentials, navigation table, or search index. It renders no search controls or search-index asset requests when `build_search_index` is omitted or false.
+
+## Configuration contract
+
+The existing configuration tables remain supported:
+
+- `extra.author`: optional `name` and `avatar`.
+- `extra.social`: optional email, GitHub, GitLab, LinkedIn, Instagram, X/Twitter, Mastodon, Facebook, Keybase, Stack Overflow, Reddit, Discord, Behance, YouTube, Tumblr, Twitch, dev.to, Bitbucket, Medium, SoundCloud, Google Play, ORCID, Google Scholar, and feed links.
+- `extra.navbar_items`: optional language-specific navigation; `$BASE_URL` is replaced with `config.base_url`.
+- `extra.favicon`: optional `favicon_16x16`, `favicon_32x32`, `apple_touch_icon`, `safari_pinned_tab`, and `webmanifest` paths.
+- `extra.analytics.google`: optional Google Analytics ID.
+- `extra.commenting.disqus`: optional Disqus shortname; a page must also set `extra.comments = true`.
+- Rich-feature tables: optional `katex`, `chart`, `mermaid`, `galleria`, and `mapbox` settings.
+
+The v2 additions are deliberately small:
+
+```toml
+[extra]
+# Optional. Omit to render no featured block.
+featured_page = "posts/post-0.md"
+
+[extra.policy]
+# Optional. Omit the whole table to render no policy link.
+label = "AI Policy"
+url = "$BASE_URL/ai-policy/"
+```
+
+`featured_page` is resolved with Zola's `get_page` only when configured. `extra.policy.url` is resolved with the same `$BASE_URL` replacement as navigation; the theme does not call `get_page` for the policy URL, so a consumer can point at an externally managed route. A Mastodon username with a leading `@` is normalized before the profile URL is emitted.
+
+### Search and highlighting
+
+```toml
+build_search_index = true
+
+[markdown.highlighting]
+theme = "github-dark-accessible"
+extra_themes = ["highlighting/github-dark-accessible.json"]
+```
+
+The standalone demo can use the theme-relative highlighting path above. In a parent consumer, Zola resolves `extra_themes` relative to the directory containing `config.toml`, so use:
+
+```toml
+extra_themes = ["themes/DeepThought/highlighting/github-dark-accessible.json"]
+```
+
+This is a path-resolution exception; highlighting files are not found through ordinary theme static lookup.
+
+### Rich content
+
+The theme includes semantic components for `chart`, `galleria`, `katex`, `mapbox`, `mermaid`, `vimeo`, and `youtube`. Enable only what is needed:
+
+```toml
 [extra]
 katex.enabled = true
 katex.auto_render = true
-
 chart.enabled = true
 mermaid.enabled = true
 galleria.enabled = true
 
-navbar_items = [
- { code = "en", nav_items = [
-  { url = "$BASE_URL/", name = "Home" },
-  { url = "$BASE_URL/posts", name = "Posts" },
-  { url = "$BASE_URL/docs", name = "Docs" },
-  { url = "$BASE_URL/tags", name = "Tags" },
-  { url = "$BASE_URL/categories", name = "Categories" },
- ]},
-]
-
-# Add links to favicon, you can use https://realfavicongenerator.net/ to generate favicon for your site
-[extra.favicon]
-favicon_16x16 = "/icons/favicon-16x16.png"
-favicon_32x32 = "/icons/favicon-32x32.png"
-apple_touch_icon = "/icons/apple-touch-icon.png"
-safari_pinned_tab = "/icons/safari-pinned-tab.svg"
-webmanifest = "/icons/site.webmanifest"
-
-# Author details
-[extra.author]
-name = "DeepThought"
-avatar = "/images/avatar.png"
-
-# Social links
-[extra.social]
-email = "<email_id>"
-facebook = "<facebook_username>"
-github = "<github_username>"
-gitlab = "<gitlab_username>"
-keybase = "<keybase_username>"
-linkedin = "<linkedin_username>"
-stackoverflow = "<stackoverflow_userid>"
-twitter = "<twitter_username>"
-instagram = "<instagram_username>"
-behance = "<behance_username>"
-google_scholar = "<googlescholar_userid>"
-orcid = "<orcid_userid>"
-mastodon_username = "<mastadon_username>"
-mastodon_server = "<mastodon_server>" (if not set, defaults to mastodon.social)
-
-
-# To add google analytics
-[extra.analytics]
-google = "<your_gtag>"
-
-# To add disqus comments
-[extra.commenting]
-disqus = "<your_disqus_shortname>"
-
-# To enable mapbox maps
 [extra.mapbox]
 enabled = true
-access_token = "<your_access_token>"
+access_token = "your-public-token"
 ```
 
-#### Multilingual Navbar
+Local markup provides responsive video aspect ratios, bounded chart/diagram/map/gallery areas, and overflow-safe prose. Mermaid, Chart.xkcd, Galleria, Mapbox, and KaTeX execute from third-party CDNs; network availability and provider behavior are not local theme guarantees. Analytics and comments are not enabled in the standalone demo.
 
-If you want to have a multilingual navbar on your blog, you must add your new code language in the [languages](https://www.getzola.org/documentation/content/multilingual/#configuration) array in the `config.toml` file.
+More examples live in [`content/docs/extended-shortcodes/index.md`](content/docs/extended-shortcodes/index.md), and the full configuration reference is [`content/docs/config-options.md`](content/docs/config-options.md).
 
-**NOTE**: Don't add you default language to this array
+## v1 to v2 upgrade notes
 
-```toml
-languages = [
-    {code = "fr"},
-    {code = "es"},
-]
+- The reusable templates and assets are now the v2 surface in this repository; keep site-specific content/configuration in the consuming site.
+- Bulma, Font Awesome/Academicons, the old `deep-thought.css` payload, and the Sass tree are removed. Do not carry old visual overrides forward without reviewing their selectors.
+- The primary static assets are `site.css` and `js/site.js`.
+- The page structure is semantic and no longer depends on Bulma utility classes or icon fonts.
+- Search, theme persistence, focus containment, taxonomy pages, pagination, metadata, comments gating, and rich-content markup remain supported.
+- Add `featured_page` or `[extra.policy]` only when the consumer wants those optional blocks.
+
+## Local development and verification
+
+From this repository:
+
+```sh
+export ZOLA=/path/to/zola-0.23.6
+"$ZOLA" --version
+"$ZOLA" build --force --output-dir /tmp/deepthought-v2-demo
+"$ZOLA" build --drafts --force --output-dir /tmp/deepthought-v2-demo-drafts
+"$ZOLA" check --drafts --skip-external-links
+PYTHONDONTWRITEBYTECODE=1 ZOLA="$ZOLA" python3 -m unittest discover -s tests -v
+node --check static/js/site.js
+node --check tests/browser_regressions.js
+node --check tests/capture_screenshots.js  # when present
+NODE_PATH="$(npm root -g)" PORT=8865 node tests/browser_regressions.js /tmp/deepthought-v2-demo
 ```
 
-And then create and array of nav item for each language:
+`ZOLA` is optional in the Python tests; when unset they resolve `zola` from `PATH`. The external-link check may report genuinely unavailable CDN URLs. Local template/build failures are not expected and should be treated as defects.
 
-**NOTE**: Include your default language in this array
+## Supported surface
 
-```toml
-navbar_items = [
- { code = "en", nav_items = [
-  { url = "$BASE_URL/", name = "Home" },
-  { url = "$BASE_URL/posts", name = "Posts" },
-  { url = "$BASE_URL/docs", name = "Docs" },
-  { url = "$BASE_URL/tags", name = "Tags" },
-  { url = "$BASE_URL/categories", name = "Categories" },
- ]},
- { code = "fr", nav_items = [
-  { url = "$BASE_URL/", name = "Connexion" },
- ]},
- { code = "es", nav_items = [
-  { url = "$BASE_URL/", name = "Publicationes" },
-  { url = "$BASE_URL/", name = "Registrar" },
- ]}
-]
-```
+The theme supports:
 
-en:
+- responsive home, page, section, taxonomy, 404, and policy templates;
+- page and section metadata, canonical URLs, optional descriptions/images, dates, reading time, word count, categories, tags, TOC, and all six Zola adjacency variants;
+- optional author/avatar, broad social links, favicons, analytics, Disqus comments, navigation, featured post, policy link, and feeds;
+- search with result navigation, focus containment/restoration, Escape handling, background inertness, and unavailable-storage handling;
+- immediate light/dark switching with persistence and accessible control state;
+- Markdown code/table/link overflow containment and accessible syntax highlighting;
+- the rich-content components listed above.
 
-![DeepThought](./screenshot_navbar_en.png)
+## Attribution and license
 
-fr:
-
-![DeepThought](./screenshot_navbar_fr.png)
-
-es:
-
-![DeepThought](./screenshot_navbar_es.png)
-
-### KaTeX math formula support
-
-This theme contains math formula support using [KaTeX](https://katex.org/),
-which can be enabled by setting `katex.enabled = true` in the `extra` section
-of `config.toml`.
-
-After enabling this extension, the `katex` component can be used in documents:
-
-- `{% <katex> %}\KaTeX{% </katex> %}` to typeset a math formula inlined into a text,
-  similar to `$...$` in LaTeX
-- `{% <katex block={true}> %}\KaTeX{% </katex> %}` to typeset a block of math formulas,
-  similar to `$$...$$` in LaTeX
-
-#### Automatic rendering without short codes
-
-Optionally, `\\( \KaTeX \\)` / `$ \KaTeX $` inline and `\\[ \KaTeX \\]` / `$$ \KaTeX $$`
-block-style automatic rendering is also supported, if enabled in the config
-by setting `katex.auto_render = true`.
-
-### Elasticlunr search in other language
-
-Zola use [Elasticlunr.js](https://github.com/weixsong/elasticlunr.js) to add full-text search feature.
-To use languages other than en (English), you need to add some javascript files. See the Zola's issue [#1349](https://github.com/getzola/zola/issues/1349).
-By placing the `templates/base.html`on your project and using the `other_lang_search_js` block, you can load the required additional javascript files in the right timing.
-
-e.g. `templates/base.html`
-
-```html
-{% extends "DeepThought/templates/base.html" %} {% block other_lang_search_js %}
-<script src="{{ get_url(path='js/lunr.stemmer.support.js') }}"></script>
-<script src="{{ get_url(path='js/tinyseg.js') }}"></script>
-<script src="{{ get_url(path='js/lunr.' ~ lang ~ '.js') }}"></script>
-<script src="{{ get_url(path='js/search.js') }}"></script>
-{% endblock %}
-```
-
-More detailed explanations are aound in [elasticlunr's documents](https://github.com/weixsong/elasticlunr.js#other-languages-example-in-browser).
-
-<!-- Contributing -->
-## :wave: Contributing
-
-<a href="https://github.com/RatanShreshtha/DeepThought/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=RatanShreshtha/DeepThought" />
-</a>
-
-
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are greatly appreciated.
-
-- Fork the Project
-- Create your Feature Branch (git checkout -b feature/AmazingFeature)
-- Commit your Changes (git commit -m 'Add some AmazingFeature')
-- Push to the Branch (git push origin feature/AmazingFeature)
-- Open a Pull Request
-
-<!-- License -->
-## :warning: License
-
-Distributed under the MIT License. See  `LICENSE` for more information.
-
-
-<!-- Contact -->
-## :handshake: Contact
-
-Ratan Kulshreshtha - [@RatanShreshtha](https://twitter.com/RatanShreshtha) - ratan.shreshtha[at]gmail.com
-
-Project Link: [https://github.com/RatanShreshtha/DeepThought](https://github.com/RatanShreshtha/DeepThought)
-
-
-<!-- Acknowledgments -->
-## :gem: Acknowledgements
-
-Use this section to mention useful resources and libraries that you have used in your projects.
-
-- [Shields.io](https://shields.io/)
-- [Choose an Open Source License](https://choosealicense.com)
-- [Awesome README](https://github.com/matiassingers/awesome-readme)
-- [Emoji Cheat Sheet](https://github.com/ikatyang/emoji-cheat-sheet/blob/main/README.md#travel--places)
-- [Slick Carousel](https://kenwheeler.github.io/slick)
-- [Font Awesome](https://fontawesome.com)
-- [Unsplash](https://unsplash.com/)
+DeepThought originated as the open-source project by Ratan Kulshreshtha. This v2 work preserves the original author attribution and MIT license; see [`LICENSE`](LICENSE) and [`theme.toml`](theme.toml). The v2 fork homepage is [github.com/manank20/DeepThought](https://github.com/manank20/DeepThought).
