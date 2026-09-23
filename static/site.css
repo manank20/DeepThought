@@ -129,7 +129,7 @@ img {
 }
 
 .site-shell {
-  width: 80%;
+  width: min(84rem, calc(100% - 2rem));
   margin-inline: auto;
 }
 
@@ -265,7 +265,7 @@ img {
 }
 
 .home-layout {
-  width: 80%;
+  width: min(72rem, calc(100% - 2rem));
   margin-inline: auto;
 }
 
@@ -274,7 +274,7 @@ img {
   grid-template-columns: minmax(0, 1fr) 8.5rem;
   gap: clamp(2rem, 7vw, 7rem);
   align-items: start;
-  width: 100%;
+  max-width: 68rem;
   margin-inline: auto;
   margin-bottom: clamp(3rem, 8vw, 6rem);
 }
@@ -284,7 +284,6 @@ img {
 }
 
 .home-intro__portrait {
-  justify-self: end;
   width: 8rem;
   height: 8rem;
   object-fit: cover;
@@ -488,28 +487,27 @@ img {
 
 .reading-layout {
   display: grid;
-  grid-template-columns: minmax(2.75rem, 18%) minmax(0, 1fr) minmax(2.75rem, 18%);
-  gap: 4%;
+  grid-template-columns: minmax(0, 14rem) minmax(0, 68ch) minmax(0, 14rem);
+  gap: clamp(1rem, 3vw, 5rem);
   align-items: start;
-  width: 80%;
+  justify-content: center;
+  width: min(calc(100% - 2rem), calc(68ch + 28rem + 10rem));
   margin-inline: auto;
 }
 
 .reading-layout:has(.desktop-toc:not([open])) {
-  grid-template-columns: minmax(2.75rem, 18%) minmax(0, 1fr) minmax(2.75rem, 18%);
-  gap: 4%;
-  width: 80%;
+  grid-template-columns: minmax(0, 14rem) minmax(0, 68ch) minmax(0, 14rem);
+  gap: clamp(1rem, 3vw, 5rem);
+  width: min(calc(100% - 2rem), calc(68ch + 28rem + 10rem));
 }
 
 .reading-layout:has(.desktop-toc:not([open])) .article-aside {
+  justify-self: start;
   width: 2.75rem;
 }
 
 .reading-column {
   grid-column: 2;
-  justify-self: center;
-  width: 100%;
-  max-width: 78ch;
   min-width: 0;
 }
 
@@ -572,9 +570,7 @@ img {
 .article-aside {
   position: sticky;
   grid-column: 1;
-  justify-self: start;
   top: 1.5rem;
-  width: min(100%, 14rem);
   min-width: 0;
   color: var(--muted);
   font-size: 0.86rem;
@@ -979,18 +975,9 @@ img {
   }
 }
 
-@media (max-width: 64rem) {
-  .reading-layout,
-  .reading-layout:has(.desktop-toc:not([open])) {
-    grid-template-columns: minmax(2.75rem, 14rem) minmax(0, 1fr);
-    gap: 4%;
-    width: 90%;
-  }
-}
-
 @media (max-width: 46rem) {
   .site-shell {
-    width: 90%;
+    width: calc(100% - 2rem);
   }
 
   .site-header__inner {
@@ -1035,7 +1022,6 @@ img {
   .reading-layout:has(.desktop-toc:not([open])) {
     grid-template-columns: 1fr;
     gap: 2.5rem;
-    width: 90%;
   }
 
   .reading-column {
