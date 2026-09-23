@@ -10,6 +10,7 @@ DeepThought v2 is a typography-first Zola theme for long-form writing. It keeps 
 | --- | --- | --- |
 | Mobile, 390px | [light](screenshots/deepthought-v2-mobile-light.png) | [dark](screenshots/deepthought-v2-mobile-dark.png) |
 | Desktop, 1440px | [light](screenshots/deepthought-v2-desktop-light.png) | [dark](screenshots/deepthought-v2-desktop-dark.png) |
+| Wide, 2560px | [light](screenshots/deepthought-v2-wide-light.png) | [dark](screenshots/deepthought-v2-wide-dark.png) |
 
 These are screenshots of the standalone demo generated from this checkout, not a mockup or a consuming site.
 

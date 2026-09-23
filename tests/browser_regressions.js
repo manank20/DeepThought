@@ -383,8 +383,8 @@ async function exerciseArticle(page, base, report) {
       return { layout: { x: layout.x, width: layout.width }, aside: { width: aside.width }, article: { x: article.x, width: article.width } };
     });
     assert.ok(collapsed.aside.width <= 44, "collapsed sidebar becomes a narrow control");
-    assert.ok(collapsed.layout.width < expanded.layout.width, "collapsed layout releases sidebar width");
-    assert.ok(collapsed.article.x < expanded.article.x, "article recenters into released left space");
+    assert.ok(Math.abs(collapsed.layout.width - expanded.layout.width) < 1, "collapsed layout keeps the percentage-based outer shell");
+    assert.ok(Math.abs(collapsed.article.x - expanded.article.x) < 1, "article remains centered when contents collapses");
     assert.ok(Math.abs(collapsed.article.width - expanded.article.width) < 1, "reading width stays stable");
     await desktopToc.locator("summary").click();
     assert.strictEqual(await desktopToc.evaluate(el => el.open), true, "click expands desktop contents");
@@ -468,6 +468,67 @@ async function exercisePolicy(page, base, report) {
   report.functional.policy = policy;
 }
 
+async function exerciseWideLayout(page, base, report) {
+  await page.setViewportSize({ width: 2560, height: 1440 });
+  await page.goto(`${base}${routes[0][1]}`, { waitUntil: "domcontentloaded" });
+  const layout = await page.evaluate(() => {
+    const rect = selector => {
+      const box = document.querySelector(selector).getBoundingClientRect();
+      return { x: box.x, right: box.right, width: box.width };
+    };
+    return {
+      viewport: innerWidth,
+      shell: rect(".home-layout"),
+      intro: rect(".home-intro"),
+      copy: rect(".home-intro__copy"),
+      portrait: rect(".home-intro__portrait"),
+    };
+  });
+  const leftGutter = layout.shell.x / layout.viewport;
+  const rightGutter = (layout.viewport - layout.shell.right) / layout.viewport;
+  assert.ok(leftGutter >= 0.095 && leftGutter <= 0.105, "wide homepage uses a 10% left gutter");
+  assert.ok(rightGutter >= 0.095 && rightGutter <= 0.105, "wide homepage uses a 10% right gutter");
+  assert.ok(Math.abs(layout.intro.x - layout.shell.x) <= 1, "homepage identity starts at the shell edge");
+  assert.ok(Math.abs(layout.intro.right - layout.shell.right) <= 1, "homepage identity ends at the shell edge");
+  assert.ok(Math.abs(layout.copy.x - layout.shell.x) <= 1, "homepage title aligns with the percentage gutter");
+  assert.ok(Math.abs(layout.portrait.right - layout.shell.right) <= 1, "homepage portrait aligns with the percentage gutter");
+
+  await page.goto(`${base}${articleRoute}`, { waitUntil: "domcontentloaded" });
+  const articleLayout = await page.evaluate(() => {
+    const rect = selector => {
+      const box = document.querySelector(selector).getBoundingClientRect();
+      return { x: box.x, right: box.right, width: box.width };
+    };
+    return {
+      viewport: innerWidth,
+      layout: rect(".reading-layout"),
+      aside: rect(".article-aside"),
+      article: rect(".reading-column"),
+    };
+  });
+  const articleLeftGutter = articleLayout.layout.x / articleLayout.viewport;
+  const articleRightGutter = (articleLayout.viewport - articleLayout.layout.right) / articleLayout.viewport;
+  const articleCenter = articleLayout.article.x + articleLayout.article.width / 2;
+  assert.ok(articleLeftGutter >= 0.095 && articleLeftGutter <= 0.105, "wide article layout uses a 10% left gutter");
+  assert.ok(articleRightGutter >= 0.095 && articleRightGutter <= 0.105, "wide article layout uses a 10% right gutter");
+  assert.ok(Math.abs(articleCenter - articleLayout.viewport / 2) <= 1, "wide article remains centered in the fluid layout");
+  assert.ok(articleLayout.article.width >= 680, "wide article uses more horizontal space without exceeding its readable measure");
+  assert.ok(Math.abs(articleLayout.aside.x - articleLayout.layout.x) <= 1, "wide contents rail starts at the percentage gutter");
+  report.functional.wideLayout = { home: layout, article: articleLayout };
+}
+
+async function exerciseFooterPlacement(page, base, report) {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`${base}${policyRoute}`, { waitUntil: "domcontentloaded" });
+  const footer = await page.evaluate(() => {
+    const box = document.querySelector(".site-footer").getBoundingClientRect();
+    return { top: box.top, bottom: box.bottom, height: box.height, viewport: innerHeight };
+  });
+  assert.ok(footer.height > 0, "footer is visible on a short page");
+  assert.ok(Math.abs(footer.bottom - footer.viewport) <= 1, "footer sits at the viewport bottom on a short page");
+  report.functional.footerPlacement = footer;
+}
+
 async function main() {
   assert.ok(fs.existsSync(output), `rendered output does not exist: ${output}`);
   const { server, base } = await startServer(output);
@@ -524,6 +585,8 @@ async function main() {
     await exerciseArticle(page, base, report);
     await exerciseRichContent(page, base, report);
     await exercisePolicy(page, base, report);
+    await exerciseWideLayout(page, base, report);
+    await exerciseFooterPlacement(page, base, report);
 
     assert.strictEqual(report.matrix.length, 54, "responsive matrix covers 9 pages x 3 viewports x 2 themes");
     assert.deepStrictEqual(report.pageErrors, [], "browser pages have no JavaScript errors");

@@ -122,7 +122,7 @@ async function main() {
       return requestRoute.abort("blockedbyclient");
     });
     const page = await context.newPage();
-    for (const [name, width, height] of [["mobile", 390, 844], ["desktop", 1440, 1000]]) {
+    for (const [name, width, height] of [["mobile", 390, 844], ["desktop", 1440, 1000], ["wide", 2560, 1440]]) {
       await page.setViewportSize({ width, height });
       for (const theme of ["light", "dark"]) {
         await page.goto(`${base}${screenshotRoute}`, { waitUntil: "domcontentloaded" });
