@@ -371,7 +371,7 @@ async function exerciseArticle(page, base, report) {
       const layout = document.querySelector(".reading-layout").getBoundingClientRect();
       const aside = document.querySelector(".article-aside").getBoundingClientRect();
       const article = document.querySelector(".reading-column").getBoundingClientRect();
-      return { layout: { x: layout.x, width: layout.width }, aside: { width: aside.width }, article: { x: article.x, width: article.width } };
+      return { viewport: innerWidth, layout: { x: layout.x, width: layout.width }, aside: { width: aside.width }, article: { x: article.x, width: article.width } };
     });
     await desktopToc.locator("summary").focus();
     await page.keyboard.press("Enter");
@@ -380,11 +380,14 @@ async function exerciseArticle(page, base, report) {
       const layout = document.querySelector(".reading-layout").getBoundingClientRect();
       const aside = document.querySelector(".article-aside").getBoundingClientRect();
       const article = document.querySelector(".reading-column").getBoundingClientRect();
-      return { layout: { x: layout.x, width: layout.width }, aside: { width: aside.width }, article: { x: article.x, width: article.width } };
+      return { viewport: innerWidth, layout: { x: layout.x, width: layout.width }, aside: { width: aside.width }, article: { x: article.x, width: article.width } };
     });
+    const expandedCenter = expanded.article.x + expanded.article.width / 2;
+    const collapsedCenter = collapsed.article.x + collapsed.article.width / 2;
     assert.ok(collapsed.aside.width <= 44, "collapsed sidebar becomes a narrow control");
-    assert.ok(collapsed.layout.width < expanded.layout.width, "collapsed layout releases sidebar width");
-    assert.ok(collapsed.article.x < expanded.article.x, "article recenters into released left space");
+    assert.ok(Math.abs(expandedCenter - expanded.viewport / 2) < 1, "article is centered while contents is expanded");
+    assert.ok(Math.abs(collapsedCenter - collapsed.viewport / 2) < 1, "article remains centered when contents collapses");
+    assert.ok(Math.abs(collapsed.article.x - expanded.article.x) < 1, "article position stays stable when contents collapses");
     assert.ok(Math.abs(collapsed.article.width - expanded.article.width) < 1, "reading width stays stable");
     await desktopToc.locator("summary").click();
     assert.strictEqual(await desktopToc.evaluate(el => el.open), true, "click expands desktop contents");
@@ -468,6 +471,18 @@ async function exercisePolicy(page, base, report) {
   report.functional.policy = policy;
 }
 
+async function exerciseFooterPlacement(page, base, report) {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`${base}${policyRoute}`, { waitUntil: "domcontentloaded" });
+  const footer = await page.evaluate(() => {
+    const box = document.querySelector(".site-footer").getBoundingClientRect();
+    return { bottom: box.bottom, height: box.height, viewport: innerHeight };
+  });
+  assert.ok(footer.height > 0, "footer is visible on a short page");
+  assert.ok(Math.abs(footer.bottom - footer.viewport) <= 1, "footer sits at the viewport bottom on a short page");
+  report.functional.footerPlacement = footer;
+}
+
 async function main() {
   assert.ok(fs.existsSync(output), `rendered output does not exist: ${output}`);
   const { server, base } = await startServer(output);
@@ -524,6 +539,7 @@ async function main() {
     await exerciseArticle(page, base, report);
     await exerciseRichContent(page, base, report);
     await exercisePolicy(page, base, report);
+    await exerciseFooterPlacement(page, base, report);
 
     assert.strictEqual(report.matrix.length, 54, "responsive matrix covers 9 pages x 3 viewports x 2 themes");
     assert.deepStrictEqual(report.pageErrors, [], "browser pages have no JavaScript errors");
